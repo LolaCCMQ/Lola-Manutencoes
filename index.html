@@ -93,6 +93,9 @@ select.input{cursor:pointer}
 .cont-icon{min-width:40px;height:40px;border-radius:10px;background:var(--blue-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .cont-icon i{font-size:18px;color:var(--blue)}
 .empty{text-align:center;padding:32px 16px;color:var(--muted);font-size:13px}
+.b-problema{background:#FFF0CC;color:#7A4F00}
+.problema-dot{width:10px;height:10px;border-radius:50%;background:#EF9F27;flex-shrink:0;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 .empty i{font-size:36px;display:block;margin-bottom:8px;color:#D4C9C0}
 .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;z-index:300;cursor:pointer}
 .lightbox img{max-width:92vw;max-height:90vh;border-radius:12px}
@@ -209,7 +212,7 @@ function fmtDate(s){if(!s)return '';const[y,m,d]=s.split('-');return `${d}/${m}/
 function filteredEquip(){
   const q=(S.search||'').toLowerCase();
   return S.equipamentos.filter(e=>{
-    if(e.status!=='ativo')return false;
+    if(e.status!=='ativo' && e.status!=='problema')return false;
     if(S.loja!=='all'&&!e.lojas.includes(S.loja))return false;
     if(S.filterTipo&&e.tipo!==S.filterTipo)return false;
     if(q&&!`${e.num} ${e.nome} ${e.setor} ${e.marca} ${e.tipo}`.toLowerCase().includes(q))return false;
@@ -231,13 +234,29 @@ function renderPainel(){
   const alertas=S.preventivas.filter(p=>{if(S.loja!=='all'&&!p.lojas.includes(S.loja))return false;const d=diasProxima(p);return d!==null&&d<=30;});
   const venc=alertas.filter(a=>diasProxima(a)<=0).length;
   const p14=alertas.filter(a=>{const d=diasProxima(a);return d>0&&d<=14;}).length;
+  const problemas=S.equipamentos.filter(e=>e.status==='problema'&&(S.loja==='all'||e.lojas.includes(S.loja))).length;
   let h=`<div class="page-title">Painel de Manutenções</div>
   <div class="stat-row">
-    <div class="stat-card"><div class="stat-num">${ativos}</div><div class="stat-lbl">Equipamentos</div></div>
+    <div class="stat-card"><div class="stat-num">${ativos+problemas}</div><div class="stat-lbl">Equipamentos</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:#B7770D">${problemas}</div><div class="stat-lbl">Com problema</div></div>
     <div class="stat-card"><div class="stat-num" style="color:#C0392B">${venc}</div><div class="stat-lbl">Prev. vencidas</div></div>
     <div class="stat-card"><div class="stat-num" style="color:#B7770D">${p14}</div><div class="stat-lbl">Vencem em 14d</div></div>
-    <div class="stat-card"><div class="stat-num">${S.descartes.length}</div><div class="stat-lbl">Descartes</div></div>
   </div>`;
+  // Equipamentos com problema
+  const comProblema = S.equipamentos.filter(e=>e.status==='problema'&&(S.loja==='all'||e.lojas.includes(S.loja)));
+  if(comProblema.length){
+    h+=`<div class="card" style="border-left:4px solid #EF9F27;margin-bottom:12px"><div style="font-size:14px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:7px;color:#7A4F00"><i class="ti ti-alert-triangle"></i>Equipamentos com problema (${comProblema.length})</div>`;
+    comProblema.forEach(e=>{
+      h+=`<div class="al-item" style="cursor:pointer" onclick="closeModal();setTab('equip');setTimeout(()=>openDetail(${e.id}),100)">
+        <div class="problema-dot"></div>
+        <div style="flex:1"><div style="font-size:13px;font-weight:600">#${e.num} ${esc(e.nome)}</div>
+        <div style="font-size:11px;color:var(--muted)">${esc(e.setor)} · ${e.lojas.map(l=>LOJAS[l]).join(', ')}</div></div>
+        <i class="ti ti-chevron-right" style="color:#ccc;font-size:14px"></i>
+      </div>`;
+    });
+    h+=`</div>`;
+  }
+
   if(alertas.length){
     h+=`<div class="card" style="border-left:4px solid var(--red)"><div style="font-size:14px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:7px;color:var(--red)"><i class="ti ti-bell-ringing"></i>Alertas de manutenção preventiva</div>`;
     alertas.forEach(a=>{const d=diasProxima(a),cor=d<=0?'dr':d<=7?'da':'dg',txt=d<0?`Vencida há ${Math.abs(d)} dias`:d===0?'Vence hoje':`Vence em ${d} dias`;h+=`<div class="al-item"><div class="adot ${cor}"></div><div style="flex:1"><div style="font-size:13px;font-weight:600">${esc(a.nome)}</div><div style="font-size:12px;color:var(--muted)">${esc(a.obs)||'A cada '+freqLabel(a.frequenciaDias)}</div></div><span style="font-size:12px;font-weight:500;color:${d<=0?'var(--red)':d<=7?'#B7770D':'var(--muted)'}">${txt}</span></div>`;});
@@ -271,6 +290,7 @@ function renderEquip(){
           ${e.lojas.map(l=>`<span class="badge b-loja">${LOJAS[l]}</span>`).join('')}
           ${e.tipo?`<span class="badge b-tipo">${esc(e.tipo)}</span>`:''}
           ${e.obs?`<span class="badge b-gray">${esc(e.obs)}</span>`:''}
+          ${e.status==='problema'?`<span class="badge b-problema"><i class="ti ti-alert-triangle" style="font-size:10px"></i>Com problema</span>`:''}
           ${e.historico.length?`<span class="badge b-gray"><i class="ti ti-history" style="font-size:10px"></i>${e.historico.length} manut.</span>`:''}
         </div>
         ${ult?`<div style="font-size:11px;color:var(--muted);margin-top:4px">Última: ${fmtDate(ult.data)} – ${esc(ult.desc.substring(0,50))}${ult.desc.length>50?'…':''}</div>`:''}
@@ -345,6 +365,10 @@ function openDetail(id){
     ${histHtml}
     <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap;border-top:1px solid var(--border);padding-top:14px">
       <button class="btn btn-p" onclick="closeModal();openAddManut(${id})"><i class="ti ti-plus"></i>Registrar manutenção</button>
+      ${e.status==='problema'
+        ? `<button class="btn" style="background:#DFFAE8;border-color:#3A9B57;color:#1A6636" onclick="resolverProblema(${id})"><i class="ti ti-circle-check"></i>Marcar resolvido</button>`
+        : `<button class="btn" style="background:#FFF0CC;border-color:#EF9F27;color:#7A4F00" onclick="reportarProblema(${id})"><i class="ti ti-alert-triangle"></i>Reportar problema</button>`
+      }
       <button class="btn btn-d" onclick="descartarEquip(${id})"><i class="ti ti-trash"></i>Descartar equipamento</button>
     </div>
   `);
