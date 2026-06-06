@@ -218,6 +218,14 @@ function render(){
   if(S.tab==='prev')c.innerHTML=renderPrev();
   if(S.tab==='desc')c.innerHTML=renderDesc();
   if(S.tab==='cont')c.innerHTML=renderCont();
+  // Restore focus to search input if it was active
+  const inp=document.getElementById('search-equip');
+  if(inp){
+    inp.focus();
+    const v=inp.value;
+    inp.value='';
+    inp.value=v;
+  }
 }
 
 function renderPainel(){
@@ -256,7 +264,7 @@ function renderEquip(){
   const lista=filteredEquip();
   const tops=S.tipos.map(t=>`<option value="${esc(t)}"${S.filterTipo===t?' selected':''}>${esc(t)}</option>`).join('');
   let h=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px"><div class="page-title" style="margin-bottom:0">Equipamentos</div><button class="btn btn-p" onclick="openNewEquip()"><i class="ti ti-plus"></i>Novo equipamento</button></div>
-  <div class="filter-bar"><input class="inp" placeholder="Nome, numero, setor, marca..." value="${esc(S.search)}" oninput="S.search=this.value;render()"><select class="inp" onchange="S.filterTipo=this.value;render()"><option value="">Todos os tipos</option>${tops}</select></div>
+  <div class="filter-bar"><input class="inp" id="search-equip" placeholder="Nome, numero, setor, marca..." value="${esc(S.search)}" oninput="S.search=this.value;render()"><select class="inp" onchange="S.filterTipo=this.value;render()"><option value="">Todos os tipos</option>${tops}</select></div>
   <div style="font-size:12px;color:var(--muted);margin-bottom:12px;font-weight:500">${lista.length} equipamento(s)</div>
   <div class="card" style="padding:8px 12px">`;
   if(!lista.length)h+=`<div class="empty"><i class="ti ti-tool"></i>Nenhum encontrado</div>`;
@@ -522,7 +530,6 @@ async function salvarProblema(id){
   try{
     await saveEquip(e);
     const tarefa={
-      id:Date.now(),
       ata_id:null,
       texto:'Manutencao necessaria: #'+e.num+' '+e.nome+' ('+e.setor+') - '+desc,
       responsavel:resp||null,
