@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lola Manutenções</title>
+<title>Lola Manutencoes</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.0.0/tabler-icons.min.css">
@@ -44,6 +44,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .b-loja{background:var(--orange-bg);color:var(--orange)}
 .b-gray{background:#F0ECE8;color:var(--muted)}
 .b-purple{background:var(--purple-bg);color:var(--purple)}
+.b-problema{background:#FFF0CC;color:#7A4F00}
 .btn{padding:7px 14px;border-radius:8px;border:1.5px solid var(--border);background:var(--white);color:var(--text);font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .15s;font-family:'Inter',sans-serif;font-weight:500}
 .btn:hover{background:var(--bg)}
 .btn-p{background:var(--red);border-color:var(--red);color:#fff}
@@ -82,6 +83,8 @@ select.input{cursor:pointer}
 .al-item:last-child{border-bottom:none}
 .adot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
 .dr{background:#E24B4A}.da{background:#EF9F27}.dg{background:#3A9B57}
+.problema-dot{width:9px;height:9px;border-radius:50%;background:#EF9F27;flex-shrink:0;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 .eq-num{min-width:40px;height:40px;border-radius:10px;background:var(--red-light);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--red);flex-shrink:0;padding:0 6px}
 .eq-info{flex:1;min-width:0}
 .eq-name{font-size:14px;font-weight:600}
@@ -93,9 +96,6 @@ select.input{cursor:pointer}
 .cont-icon{min-width:40px;height:40px;border-radius:10px;background:var(--blue-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .cont-icon i{font-size:18px;color:var(--blue)}
 .empty{text-align:center;padding:32px 16px;color:var(--muted);font-size:13px}
-.b-problema{background:#FFF0CC;color:#7A4F00}
-.problema-dot{width:10px;height:10px;border-radius:50%;background:#EF9F27;flex-shrink:0;animation:pulse 1.5s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 .empty i{font-size:36px;display:block;margin-bottom:8px;color:#D4C9C0}
 .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;z-index:300;cursor:pointer}
 .lightbox img{max-width:92vw;max-height:90vh;border-radius:12px}
@@ -135,71 +135,62 @@ select.input{cursor:pointer}
   </div>
   <div class="content" id="content"></div>
 </div>
-
 <script>
-const SB_URL = 'https://dfcwzwxakjghdmzhycvy.supabase.co';
-const SB_KEY = 'sb_publishable_agoe4AgkRNK_d6nVWiAZ6A_aEqmuI5g';
-const LOJAS = {all:'Todas',ccmq:'Lola CCMQ',mac:'Lola Mac',central:'Cozinha Central'};
-const TABS  = ['painel','equip','prev','desc','cont'];
-let S = {tab:'painel',loja:'all',search:'',filterTipo:'',equipamentos:[],preventivas:[],descartes:[],contatos:[],tipos:[]};
+const SB_URL='https://mvjbsdpfjhywhaonvpfl.supabase.co';
+const SB_KEY='sb_publishable_VMJzYe1AwL9zEoFs-ljUIw_OOkDpqhy';
+const LOJAS={all:'Todas',ccmq:'Lola CCMQ',mac:'Lola Mac',central:'Cozinha Central'};
+const TABS=['painel','equip','prev','desc','cont'];
+let S={tab:'painel',loja:'all',search:'',filterTipo:'',equipamentos:[],preventivas:[],descartes:[],contatos:[],tipos:[]};
 
-async function sbFetch(table, opts={}) {
-  const {method='GET', body, query='', prefer='return=representation'} = opts;
-  const url = `${SB_URL}/rest/v1/${table}${query}`;
-  const headers = {'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`,'Content-Type':'application/json','Prefer':prefer};
-  const r = await fetch(url, {method, headers, body: body ? JSON.stringify(body) : undefined});
-  if(!r.ok) throw new Error(await r.text());
-  const txt = await r.text();
-  return txt ? JSON.parse(txt) : [];
+async function sbFetch(table,opts={}){
+  const{method='GET',body,query='',prefer='return=representation'}=opts;
+  const url=`${SB_URL}/rest/v1/${table}${query}`;
+  const headers={'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`,'Content-Type':'application/json','Prefer':prefer};
+  const r=await fetch(url,{method,headers,body:body?JSON.stringify(body):undefined});
+  if(!r.ok)throw new Error(await r.text());
+  const txt=await r.text();
+  return txt?JSON.parse(txt):[];
 }
-async function sbGet(t,q='')   { return sbFetch(t,{query:q}); }
-async function sbPost(t,b)     { return sbFetch(t,{method:'POST',body:b}); }
-async function sbUpsert(t,b)   { return sbFetch(t,{method:'POST',body:b,query:'?on_conflict=id',prefer:'resolution=merge-duplicates,return=representation'}); }
-async function sbDelete(t,q)   { return sbFetch(t,{method:'DELETE',query:q}); }
+async function sbGet(t,q=''){return sbFetch(t,{query:q});}
+async function sbPost(t,b){return sbFetch(t,{method:'POST',body:b});}
+async function sbUpsert(t,b){return sbFetch(t,{method:'POST',body:b,query:'?on_conflict=id',prefer:'resolution=merge-duplicates,return=representation'});}
+async function sbDelete(t,q){return sbFetch(t,{method:'DELETE',query:q});}
 
-async function loadAll() {
+async function loadAll(){
   showLoading();
-  try {
-    const [eq,prev,desc,cont,tipos] = await Promise.all([
+  try{
+    const[eq,prev,desc,cont,tipos]=await Promise.all([
       sbGet('equipamentos','?order=num.asc'),
       sbGet('preventivas','?order=id.asc'),
       sbGet('descartes','?order=id.asc'),
       sbGet('contatos','?order=id.asc'),
       sbGet('tipos','?order=nome.asc'),
     ]);
-    S.equipamentos = eq.map(mapEq);
-    S.preventivas  = prev.map(mapPrev);
-    S.descartes    = desc;
-    S.contatos     = cont;
-    S.tipos        = tipos.map(t=>t.nome);
-    if(!S.tipos.length) {
-      const defs = ['Refrigeração','Elétrica','Cozinha','Bar','Informática','Climatização','Hidráulica','Outros'];
-      for(const nome of defs) await sbPost('tipos',{nome});
-      S.tipos = defs;
+    S.equipamentos=eq.map(mapEq);
+    S.preventivas=prev.map(mapPrev);
+    S.descartes=desc;
+    S.contatos=cont;
+    S.tipos=tipos.map(t=>t.nome);
+    if(!S.tipos.length){
+      const defs=['Refrigeracao','Eletrica','Cozinha','Bar','Informatica','Climatizacao','Hidraulica','Outros'];
+      for(const nome of defs)await sbPost('tipos',{nome});
+      S.tipos=defs;
     }
-    hideLoading(); render();
-  } catch(e) { hideLoading(); showToast('Erro ao carregar: '+e.message, true); }
+    hideLoading();render();
+  }catch(e){hideLoading();showToast('Erro ao carregar: '+e.message,true);}
 }
 
-function mapEq(r) {
-  return {id:r.id,num:r.num,nome:r.nome,setor:r.setor||'',lojas:r.lojas||[],tipo:r.tipo||'',marca:r.marca||'',modelo:r.modelo||'',numSerie:r.num_serie||'',notaFiscal:r.nota_fiscal||'',obs:r.obs||'',status:r.status||'ativo',fotos:r.fotos||[],historico:r.historico||[]};
-}
-function mapPrev(r) {
-  return {id:r.id,nome:r.nome,frequenciaDias:r.frequencia_dias,lojas:r.lojas||[],ultimaData:r.ultima_data||'',obs:r.obs||''};
-}
+function mapEq(r){return{id:r.id,num:r.num,nome:r.nome,setor:r.setor||'',lojas:r.lojas||[],tipo:r.tipo||'',marca:r.marca||'',modelo:r.modelo||'',numSerie:r.num_serie||'',notaFiscal:r.nota_fiscal||'',obs:r.obs||'',status:r.status||'ativo',fotos:r.fotos||[],historico:r.historico||[]};}
+function mapPrev(r){return{id:r.id,nome:r.nome,frequenciaDias:r.frequencia_dias,lojas:r.lojas||[],ultimaData:r.ultima_data||'',obs:r.obs||''};}
 
-async function saveEquip(e) {
-  await sbUpsert('equipamentos',{id:e.id,num:e.num,nome:e.nome,setor:e.setor,lojas:e.lojas,tipo:e.tipo,marca:e.marca,modelo:e.modelo,num_serie:e.numSerie,nota_fiscal:e.notaFiscal,obs:e.obs,status:e.status,fotos:e.fotos,historico:e.historico});
-}
-async function savePrevDB(p) {
-  await sbUpsert('preventivas',{id:p.id,nome:p.nome,frequencia_dias:p.frequenciaDias,lojas:p.lojas,ultima_data:p.ultimaData,obs:p.obs});
-}
-async function saveDescDB(d) { await sbUpsert('descartes',{id:d.id,nome:d.nome,marca:d.marca,motivo:d.motivo,data:d.data,obs:d.obs}); }
-async function saveContDB(c) { await sbUpsert('contatos',{id:c.id,nome:c.nome,especialidade:c.especialidade,tel:c.tel,obs:c.obs}); }
+async function saveEquip(e){await sbUpsert('equipamentos',{id:e.id,num:e.num,nome:e.nome,setor:e.setor,lojas:e.lojas,tipo:e.tipo,marca:e.marca,modelo:e.modelo,num_serie:e.numSerie,nota_fiscal:e.notaFiscal,obs:e.obs,status:e.status,fotos:e.fotos,historico:e.historico});}
+async function savePrevDB(p){await sbUpsert('preventivas',{id:p.id,nome:p.nome,frequencia_dias:p.frequenciaDias,lojas:p.lojas,ultima_data:p.ultimaData,obs:p.obs});}
+async function saveDescDB(d){await sbUpsert('descartes',{id:d.id,nome:d.nome,marca:d.marca,motivo:d.motivo,data:d.data,obs:d.obs});}
+async function saveContDB(c){await sbUpsert('contatos',{id:c.id,nome:c.nome,especialidade:c.especialidade,tel:c.tel,obs:c.obs});}
 
-function showLoading() { let l=document.getElementById('_ld'); if(!l){l=document.createElement('div');l.id='_ld';l.className='loading';l.innerHTML='<div class="spinner"></div><span>Carregando...</span>';document.body.appendChild(l);} }
-function hideLoading() { const l=document.getElementById('_ld');if(l)l.remove(); }
-function showToast(msg,err=false) { const t=document.createElement('div');t.className='toast'+(err?'':' ok');t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),3000); }
+function showLoading(){let l=document.getElementById('_ld');if(!l){l=document.createElement('div');l.id='_ld';l.className='loading';l.innerHTML='<div class="spinner"></div><span>Carregando...</span>';document.body.appendChild(l);}}
+function hideLoading(){const l=document.getElementById('_ld');if(l)l.remove();}
+function showToast(msg,err=false){const t=document.createElement('div');t.className='toast'+(err?'':' ok');t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),3000);}
 
 function setTab(t){S.tab=t;TABS.forEach(x=>document.getElementById('nav-'+x).classList.toggle('active',x===t));render();}
 function setLoja(l){S.loja=l;['all','ccmq','mac','central'].forEach(x=>document.getElementById('pill-'+x).classList.toggle('active',x===l));render();}
@@ -207,12 +198,12 @@ function setLoja(l){S.loja=l;['all','ccmq','mac','central'].forEach(x=>document.
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function nextNum(){return S.equipamentos.length?Math.max(...S.equipamentos.map(e=>e.num))+1:1;}
 function diasProxima(p){if(!p.ultimaData)return null;const d=new Date(p.ultimaData);d.setDate(d.getDate()+p.frequenciaDias);return Math.round((d-new Date())/864e5);}
-function freqLabel(d){return d>=365?Math.round(d/365)+' ano(s)':d>=30?Math.round(d/30)+' mês(es)':d+' dias';}
-function fmtDate(s){if(!s)return '';const[y,m,d]=s.split('-');return `${d}/${m}/${y}`;}
+function freqLabel(d){return d>=365?Math.round(d/365)+' ano(s)':d>=30?Math.round(d/30)+' mes(es)':d+' dias';}
+function fmtDate(s){if(!s)return'';const[y,m,d]=s.split('-');return`${d}/${m}/${y}`;}
 function filteredEquip(){
   const q=(S.search||'').toLowerCase();
   return S.equipamentos.filter(e=>{
-    if(e.status!=='ativo' && e.status!=='problema')return false;
+    if(e.status!=='ativo'&&e.status!=='problema')return false;
     if(S.loja!=='all'&&!e.lojas.includes(S.loja))return false;
     if(S.filterTipo&&e.tipo!==S.filterTipo)return false;
     if(q&&!`${e.num} ${e.nome} ${e.setor} ${e.marca} ${e.tipo}`.toLowerCase().includes(q))return false;
@@ -222,52 +213,42 @@ function filteredEquip(){
 
 function render(){
   const c=document.getElementById('content');
-  if(S.tab==='painel') c.innerHTML=renderPainel();
-  if(S.tab==='equip')  c.innerHTML=renderEquip();
-  if(S.tab==='prev')   c.innerHTML=renderPrev();
-  if(S.tab==='desc')   c.innerHTML=renderDesc();
-  if(S.tab==='cont')   c.innerHTML=renderCont();
+  if(S.tab==='painel')c.innerHTML=renderPainel();
+  if(S.tab==='equip')c.innerHTML=renderEquip();
+  if(S.tab==='prev')c.innerHTML=renderPrev();
+  if(S.tab==='desc')c.innerHTML=renderDesc();
+  if(S.tab==='cont')c.innerHTML=renderCont();
 }
 
 function renderPainel(){
   const ativos=S.equipamentos.filter(e=>e.status==='ativo'&&(S.loja==='all'||e.lojas.includes(S.loja))).length;
+  const comProblema=S.equipamentos.filter(e=>e.status==='problema'&&(S.loja==='all'||e.lojas.includes(S.loja)));
   const alertas=S.preventivas.filter(p=>{if(S.loja!=='all'&&!p.lojas.includes(S.loja))return false;const d=diasProxima(p);return d!==null&&d<=30;});
   const venc=alertas.filter(a=>diasProxima(a)<=0).length;
   const p14=alertas.filter(a=>{const d=diasProxima(a);return d>0&&d<=14;}).length;
-  const problemas=S.equipamentos.filter(e=>e.status==='problema'&&(S.loja==='all'||e.lojas.includes(S.loja))).length;
-  let h=`<div class="page-title">Painel de Manutenções</div>
+  let h=`<div class="page-title">Painel de Manutencoes</div>
   <div class="stat-row">
-    <div class="stat-card"><div class="stat-num">${ativos+problemas}</div><div class="stat-lbl">Equipamentos</div></div>
-    <div class="stat-card"><div class="stat-num" style="color:#B7770D">${problemas}</div><div class="stat-lbl">Com problema</div></div>
+    <div class="stat-card"><div class="stat-num">${ativos+comProblema.length}</div><div class="stat-lbl">Equipamentos</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:#B7770D">${comProblema.length}</div><div class="stat-lbl">Com problema</div></div>
     <div class="stat-card"><div class="stat-num" style="color:#C0392B">${venc}</div><div class="stat-lbl">Prev. vencidas</div></div>
     <div class="stat-card"><div class="stat-num" style="color:#B7770D">${p14}</div><div class="stat-lbl">Vencem em 14d</div></div>
   </div>`;
-  // Equipamentos com problema
-  const comProblema = S.equipamentos.filter(e=>e.status==='problema'&&(S.loja==='all'||e.lojas.includes(S.loja)));
   if(comProblema.length){
     h+=`<div class="card" style="border-left:4px solid #EF9F27;margin-bottom:12px"><div style="font-size:14px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:7px;color:#7A4F00"><i class="ti ti-alert-triangle"></i>Equipamentos com problema (${comProblema.length})</div>`;
-    comProblema.forEach(e=>{
-      h+=`<div class="al-item" style="cursor:pointer" onclick="closeModal();setTab('equip');setTimeout(()=>openDetail(${e.id}),100)">
-        <div class="problema-dot"></div>
-        <div style="flex:1"><div style="font-size:13px;font-weight:600">#${e.num} ${esc(e.nome)}</div>
-        <div style="font-size:11px;color:var(--muted)">${esc(e.setor)} · ${e.lojas.map(l=>LOJAS[l]).join(', ')}</div></div>
-        <i class="ti ti-chevron-right" style="color:#ccc;font-size:14px"></i>
-      </div>`;
-    });
+    comProblema.forEach(e=>{h+=`<div class="al-item" style="cursor:pointer" onclick="setTab('equip');setTimeout(function(){openDetail(${e.id});},150)"><div class="problema-dot"></div><div style="flex:1"><div style="font-size:13px;font-weight:600">#${e.num} ${esc(e.nome)}</div><div style="font-size:11px;color:var(--muted)">${esc(e.setor)}</div></div><i class="ti ti-chevron-right" style="color:#ccc;font-size:14px"></i></div>`;});
     h+=`</div>`;
   }
-
   if(alertas.length){
-    h+=`<div class="card" style="border-left:4px solid var(--red)"><div style="font-size:14px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:7px;color:var(--red)"><i class="ti ti-bell-ringing"></i>Alertas de manutenção preventiva</div>`;
-    alertas.forEach(a=>{const d=diasProxima(a),cor=d<=0?'dr':d<=7?'da':'dg',txt=d<0?`Vencida há ${Math.abs(d)} dias`:d===0?'Vence hoje':`Vence em ${d} dias`;h+=`<div class="al-item"><div class="adot ${cor}"></div><div style="flex:1"><div style="font-size:13px;font-weight:600">${esc(a.nome)}</div><div style="font-size:12px;color:var(--muted)">${esc(a.obs)||'A cada '+freqLabel(a.frequenciaDias)}</div></div><span style="font-size:12px;font-weight:500;color:${d<=0?'var(--red)':d<=7?'#B7770D':'var(--muted)'}">${txt}</span></div>`;});
+    h+=`<div class="card" style="border-left:4px solid var(--red)"><div style="font-size:14px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:7px;color:var(--red)"><i class="ti ti-bell-ringing"></i>Alertas de manutencao preventiva</div>`;
+    alertas.forEach(a=>{const d=diasProxima(a),cor=d<=0?'dr':d<=7?'da':'dg',txt=d<0?`Vencida ha ${Math.abs(d)} dias`:d===0?'Vence hoje':`Vence em ${d} dias`;h+=`<div class="al-item"><div class="adot ${cor}"></div><div style="flex:1"><div style="font-size:13px;font-weight:600">${esc(a.nome)}</div><div style="font-size:12px;color:var(--muted)">${esc(a.obs)||'A cada '+freqLabel(a.frequenciaDias)}</div></div><span style="font-size:12px;font-weight:500;color:${d<=0?'var(--red)':d<=7?'#B7770D':'var(--muted)'}">${txt}</span></div>`;});
     h+=`</div>`;
   }
   const rec=[];
   S.equipamentos.forEach(e=>{if(S.loja!=='all'&&!e.lojas.includes(S.loja))return;e.historico.forEach(hh=>rec.push({...hh,equip:e.nome,eid:e.id}));});
   rec.sort((a,b)=>b.data.localeCompare(a.data));
-  h+=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><div class="page-title" style="font-size:18px;margin-bottom:0">Últimas manutenções</div><button class="btn btn-sm btn-outline" onclick="setTab('equip')">Ver todos <i class="ti ti-arrow-right"></i></button></div>`;
-  if(!rec.length)h+=`<div class="empty"><i class="ti ti-clock"></i>Nenhuma manutenção registrada</div>`;
-  rec.slice(0,5).forEach(hh=>{h+=`<div class="card" style="cursor:pointer;padding:14px 16px" onclick="openDetail(${hh.eid})"><div class="card-top"><span class="badge b-gray">${fmtDate(hh.data)}</span>${hh.quem?`<span class="badge b-purple"><i class="ti ti-tool" style="font-size:10px"></i>${esc(hh.quem)}</span>`:''}</div><div class="card-title" style="font-size:15px">${esc(hh.equip)}</div><div style="font-size:13px;color:var(--muted);margin-top:2px">${esc(hh.desc.substring(0,90))}${hh.desc.length>90?'…':''}</div></div>`;});
+  h+=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><div class="page-title" style="font-size:18px;margin-bottom:0">Ultimas manutencoes</div><button class="btn btn-sm btn-outline" onclick="setTab('equip')">Ver todos <i class="ti ti-arrow-right"></i></button></div>`;
+  if(!rec.length)h+=`<div class="empty"><i class="ti ti-clock"></i>Nenhuma manutencao registrada</div>`;
+  rec.slice(0,5).forEach(hh=>{h+=`<div class="card" style="cursor:pointer;padding:14px 16px" onclick="openDetail(${hh.eid})"><div class="card-top"><span class="badge b-gray">${fmtDate(hh.data)}</span>${hh.quem?`<span class="badge b-purple"><i class="ti ti-tool" style="font-size:10px"></i>${esc(hh.quem)}</span>`:''}</div><div class="card-title" style="font-size:15px">${esc(hh.equip)}</div><div style="font-size:13px;color:var(--muted);margin-top:2px">${esc(hh.desc.substring(0,90))}${hh.desc.length>90?'...':''}</div></div>`;});
   return h;
 }
 
@@ -275,7 +256,7 @@ function renderEquip(){
   const lista=filteredEquip();
   const tops=S.tipos.map(t=>`<option value="${esc(t)}"${S.filterTipo===t?' selected':''}>${esc(t)}</option>`).join('');
   let h=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px"><div class="page-title" style="margin-bottom:0">Equipamentos</div><button class="btn btn-p" onclick="openNewEquip()"><i class="ti ti-plus"></i>Novo equipamento</button></div>
-  <div class="filter-bar"><input class="inp" placeholder="🔍  Nome, nº, setor, marca..." value="${esc(S.search)}" oninput="S.search=this.value;render()"><select class="inp" onchange="S.filterTipo=this.value;render()"><option value="">Todos os tipos</option>${tops}</select></div>
+  <div class="filter-bar"><input class="inp" placeholder="Nome, numero, setor, marca..." value="${esc(S.search)}" oninput="S.search=this.value;render()"><select class="inp" onchange="S.filterTipo=this.value;render()"><option value="">Todos os tipos</option>${tops}</select></div>
   <div style="font-size:12px;color:var(--muted);margin-bottom:12px;font-weight:500">${lista.length} equipamento(s)</div>
   <div class="card" style="padding:8px 12px">`;
   if(!lista.length)h+=`<div class="empty"><i class="ti ti-tool"></i>Nenhum encontrado</div>`;
@@ -285,7 +266,7 @@ function renderEquip(){
       <div class="eq-num">#${e.num}</div>
       <div class="eq-info">
         <div class="eq-name">${esc(e.nome)}</div>
-        <div class="eq-meta">${esc(e.setor)}${e.marca?' · '+esc(e.marca):''}</div>
+        <div class="eq-meta">${esc(e.setor)}${e.marca?' - '+esc(e.marca):''}</div>
         <div class="eq-tags">
           ${e.lojas.map(l=>`<span class="badge b-loja">${LOJAS[l]}</span>`).join('')}
           ${e.tipo?`<span class="badge b-tipo">${esc(e.tipo)}</span>`:''}
@@ -293,7 +274,7 @@ function renderEquip(){
           ${e.status==='problema'?`<span class="badge b-problema"><i class="ti ti-alert-triangle" style="font-size:10px"></i>Com problema</span>`:''}
           ${e.historico.length?`<span class="badge b-gray"><i class="ti ti-history" style="font-size:10px"></i>${e.historico.length} manut.</span>`:''}
         </div>
-        ${ult?`<div style="font-size:11px;color:var(--muted);margin-top:4px">Última: ${fmtDate(ult.data)} – ${esc(ult.desc.substring(0,50))}${ult.desc.length>50?'…':''}</div>`:''}
+        ${ult?`<div style="font-size:11px;color:var(--muted);margin-top:4px">Ultima: ${fmtDate(ult.data)} - ${esc(ult.desc.substring(0,50))}${ult.desc.length>50?'...':''}</div>`:''}
       </div>
       <i class="ti ti-chevron-right" style="color:#ccc;font-size:16px;flex-shrink:0;margin-top:10px"></i>
     </div>`;
@@ -303,11 +284,11 @@ function renderEquip(){
 
 function renderPrev(){
   const lista=S.preventivas.filter(p=>S.loja==='all'||p.lojas.includes(S.loja));
-  let h=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px"><div class="page-title" style="margin-bottom:0">Manutenções Preventivas</div><button class="btn btn-p" onclick="openNewPrev()"><i class="ti ti-plus"></i>Nova preventiva</button></div>`;
+  let h=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px"><div class="page-title" style="margin-bottom:0">Manutencoes Preventivas</div><button class="btn btn-p" onclick="openNewPrev()"><i class="ti ti-plus"></i>Nova preventiva</button></div>`;
   if(!lista.length)h+=`<div class="empty"><i class="ti ti-calendar-check"></i>Nenhuma preventiva</div>`;
   lista.forEach(p=>{
-    const d=diasProxima(p),cls=d===null?'b-ok':d<=0?'b-bad':d<=14?'b-warn':'b-ok',txt=d===null?'Sem data':d<0?`Vencida há ${Math.abs(d)} dias`:d===0?'Vence hoje':`Próxima em ${d} dias`,icon=d===null||d>14?'ti-circle-check':d<=0?'ti-alert-circle':'ti-clock-exclamation';
-    h+=`<div class="card"><div class="card-top"><span class="badge ${cls}"><i class="ti ${icon}" style="font-size:11px"></i>${txt}</span>${p.lojas.map(l=>`<span class="badge b-loja">${LOJAS[l]}</span>`).join('')}<span class="badge b-gray">A cada ${freqLabel(p.frequenciaDias)}</span></div><div class="card-title" style="font-size:16px;cursor:default">${esc(p.nome)}</div>${p.obs?`<div style="font-size:13px;color:var(--muted);margin-bottom:8px">${esc(p.obs)}</div>`:'<div style="margin-bottom:8px"></div>'}<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">${p.ultimaData?`<div style="font-size:12px;color:var(--muted)">Última realização: ${fmtDate(p.ultimaData)}</div>`:''}<button class="btn btn-sm btn-p" onclick="markPrev(${p.id})"><i class="ti ti-check"></i>Marcar como realizada</button></div></div>`;
+    const d=diasProxima(p),cls=d===null?'b-ok':d<=0?'b-bad':d<=14?'b-warn':'b-ok',txt=d===null?'Sem data':d<0?`Vencida ha ${Math.abs(d)} dias`:d===0?'Vence hoje':`Proxima em ${d} dias`,icon=d===null||d>14?'ti-circle-check':d<=0?'ti-alert-circle':'ti-clock-exclamation';
+    h+=`<div class="card"><div class="card-top"><span class="badge ${cls}"><i class="ti ${icon}" style="font-size:11px"></i>${txt}</span>${p.lojas.map(l=>`<span class="badge b-loja">${LOJAS[l]}</span>`).join('')}<span class="badge b-gray">A cada ${freqLabel(p.frequenciaDias)}</span></div><div class="card-title" style="font-size:16px;cursor:default">${esc(p.nome)}</div>${p.obs?`<div style="font-size:13px;color:var(--muted);margin-bottom:8px">${esc(p.obs)}</div>`:'<div style="margin-bottom:8px"></div>'}<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">${p.ultimaData?`<div style="font-size:12px;color:var(--muted)">Ultima realizacao: ${fmtDate(p.ultimaData)}</div>`:''}<button class="btn btn-sm btn-p" onclick="markPrev(${p.id})"><i class="ti ti-check"></i>Marcar como realizada</button></div></div>`;
   });
   return h;
 }
@@ -315,7 +296,7 @@ function renderPrev(){
 function renderDesc(){
   let h=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px"><div class="page-title" style="margin-bottom:0">Equipamentos Descartados</div><button class="btn btn-p" onclick="openNewDesc()"><i class="ti ti-plus"></i>Registrar descarte</button></div>`;
   if(!S.descartes.length)h+=`<div class="empty"><i class="ti ti-trash"></i>Nenhum descarte</div>`;
-  S.descartes.forEach(d=>{h+=`<div class="card"><div class="card-top"><span class="badge b-bad"><i class="ti ti-trash" style="font-size:10px"></i>Descartado</span>${d.data?`<span class="badge b-gray">${fmtDate(d.data)}</span>`:''}</div><div class="card-title" style="font-size:16px;cursor:default">${esc(d.nome)}</div><div style="font-size:13px;color:var(--muted)">${[d.marca,d.motivo].filter(Boolean).map(esc).join(' · ')}</div>${d.obs?`<div style="font-size:12px;color:var(--muted);margin-top:4px">${esc(d.obs)}</div>`:''}</div>`;});
+  S.descartes.forEach(d=>{h+=`<div class="card"><div class="card-top"><span class="badge b-bad"><i class="ti ti-trash" style="font-size:10px"></i>Descartado</span>${d.data?`<span class="badge b-gray">${fmtDate(d.data)}</span>`:''}</div><div class="card-title" style="font-size:16px;cursor:default">${esc(d.nome)}</div><div style="font-size:13px;color:var(--muted)">${[d.marca,d.motivo].filter(Boolean).map(esc).join(' - ')}</div>${d.obs?`<div style="font-size:12px;color:var(--muted);margin-top:4px">${esc(d.obs)}</div>`:''}</div>`;});
   return h;
 }
 
@@ -325,82 +306,81 @@ function renderCont(){
   h+=`</div>`;return h;
 }
 
-function openModal(html){closeModal();const bd=document.createElement('div');bd.className='modal-bd';bd.id='modal-bd';bd.innerHTML=`<div class="modal">${html}</div>`;bd.addEventListener('click',e=>{if(e.target===bd)closeModal();});document.getElementById('app').appendChild(bd);}
+function openModal(html){closeModal();const bd=document.createElement('div');bd.className='modal-bd';bd.id='modal-bd';bd.innerHTML='<div class="modal">'+html+'</div>';bd.addEventListener('click',function(e){if(e.target===bd)closeModal();});document.getElementById('app').appendChild(bd);}
 function closeModal(){const m=document.getElementById('modal-bd');if(m)m.remove();}
 
 function openDetail(id){
   const e=S.equipamentos.find(x=>x.id===id);if(!e)return;
   const fotos=e.fotos||[];
-  const histHtml=[...e.historico].reverse().map((h,ri)=>{
+  const histHtml=[...e.historico].reverse().map(function(h,ri){
     const oi=e.historico.length-1-ri;
-    return `<div class="hist-item"><div style="display:flex;justify-content:space-between;align-items:flex-start"><div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center"><span class="badge b-gray">${fmtDate(h.data)}</span>${h.quem?`<span class="badge b-purple"><i class="ti ti-tool" style="font-size:10px"></i>${esc(h.quem)}</span>`:''} ${h.garantia?`<span class="badge b-ok">Garantia: ${esc(h.garantia)}</span>`:''}</div><button class="btn btn-sm btn-d btn-icon" onclick="delManut(${id},${oi})"><i class="ti ti-trash"></i></button></div><div style="margin:6px 0;font-size:13px;font-weight:500">${esc(h.desc)}</div><div class="hdate">${[h.custo?'R$ '+h.custo:'',h.nf?'NF: '+esc(h.nf):''].filter(Boolean).join(' · ')}</div></div>`;
+    return '<div class="hist-item"><div style="display:flex;justify-content:space-between;align-items:flex-start"><div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center"><span class="badge b-gray">'+fmtDate(h.data)+'</span>'+(h.quem?'<span class="badge b-purple"><i class="ti ti-tool" style="font-size:10px"></i>'+esc(h.quem)+'</span>':'')+(h.garantia?'<span class="badge b-ok">Garantia: '+esc(h.garantia)+'</span>':'')+'</div><button class="btn btn-sm btn-d btn-icon" onclick="delManut('+id+','+oi+')"><i class="ti ti-trash"></i></button></div><div style="margin:6px 0;font-size:13px;font-weight:500">'+esc(h.desc)+'</div><div class="hdate">'+[h.custo?'R$ '+h.custo:'',h.nf?'NF: '+esc(h.nf):''].filter(Boolean).join(' - ')+'</div></div>';
   }).join('');
-  openModal(`
-    <div class="mtitle"><span>#${e.num} ${esc(e.nome)}</span>
-      <div style="display:flex;gap:6px;flex-shrink:0">
-        <button class="btn btn-sm btn-outline" onclick="closeModal();openEditEquip(${id})"><i class="ti ti-edit"></i>Editar</button>
-        <button class="btn btn-sm btn-icon" onclick="closeModal()"><i class="ti ti-x"></i></button>
-      </div>
-    </div>
-    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
-      ${e.lojas.map(l=>`<span class="badge b-loja">${LOJAS[l]}</span>`).join('')}
-      ${e.tipo?`<span class="badge b-tipo">${esc(e.tipo)}</span>`:''}
-      ${e.obs?`<span class="badge b-gray">${esc(e.obs)}</span>`:''}
-    </div>
-    <div class="info-grid">
-      <div class="ig-item"><label>Setor</label><div>${esc(e.setor)||'—'}</div></div>
-      <div class="ig-item"><label>Marca</label><div>${esc(e.marca)||'—'}</div></div>
-      <div class="ig-item"><label>Modelo</label><div>${esc(e.modelo)||'—'}</div></div>
-      <div class="ig-item"><label>Nº Série</label><div>${esc(e.numSerie)||'—'}</div></div>
-      <div class="ig-item ig-two"><label>Nota Fiscal</label><div>${esc(e.notaFiscal)||'—'}</div></div>
-    </div>
-    <div class="slbl">Fotos</div>
-    <div class="photo-row" id="dp-${id}">
-      ${fotos.map(f=>`<img class="pthumb" src="${f}" onclick="openLB('${f}')">`).join('')}
-      <label class="padd" for="pinp-${id}"><i class="ti ti-camera"></i>Adicionar foto</label>
-      <input type="file" id="pinp-${id}" accept="image/*" multiple style="display:none" onchange="addPhotos(${id},this)">
-    </div>
-    <div class="slbl">Histórico de manutenções (${e.historico.length})</div>
-    ${!e.historico.length?`<div class="empty" style="padding:16px 0"><i class="ti ti-clock"></i>Nenhuma registrada</div>`:''}
-    ${histHtml}
-    <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap;border-top:1px solid var(--border);padding-top:14px">
-      <button class="btn btn-p" onclick="closeModal();openAddManut(${id})"><i class="ti ti-plus"></i>Registrar manutenção</button>
-      ${e.status==='problema'
-        ? `<button class="btn" style="background:#DFFAE8;border-color:#3A9B57;color:#1A6636" onclick="resolverProblema(${id})"><i class="ti ti-circle-check"></i>Marcar resolvido</button>`
-        : `<button class="btn" style="background:#FFF0CC;border-color:#EF9F27;color:#7A4F00" onclick="reportarProblema(${id})"><i class="ti ti-alert-triangle"></i>Reportar problema</button>`
-      }
-      <button class="btn btn-d" onclick="descartarEquip(${id})"><i class="ti ti-trash"></i>Descartar equipamento</button>
-    </div>
-  `);
+  const btnProblema = e.status==='problema'
+    ? '<button class="btn" style="background:#DFFAE8;border-color:#3A9B57;color:#1A6636" onclick="resolverProblema('+id+')"><i class="ti ti-circle-check"></i>Marcar resolvido</button>'
+    : '<button class="btn" style="background:#FFF0CC;border-color:#EF9F27;color:#7A4F00" onclick="reportarProblema('+id+')"><i class="ti ti-alert-triangle"></i>Reportar problema</button>';
+  openModal(
+    '<div class="mtitle"><span>#'+e.num+' '+esc(e.nome)+'</span>'+
+    '<div style="display:flex;gap:6px;flex-shrink:0">'+
+    '<button class="btn btn-sm btn-outline" onclick="closeModal();openEditEquip('+id+')"><i class="ti ti-edit"></i>Editar</button>'+
+    '<button class="btn btn-sm btn-icon" onclick="closeModal()"><i class="ti ti-x"></i></button>'+
+    '</div></div>'+
+    '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">'+
+    e.lojas.map(function(l){return '<span class="badge b-loja">'+LOJAS[l]+'</span>';}).join('')+
+    (e.tipo?'<span class="badge b-tipo">'+esc(e.tipo)+'</span>':'')+
+    (e.obs?'<span class="badge b-gray">'+esc(e.obs)+'</span>':'')+
+    (e.status==='problema'?'<span class="badge b-problema"><i class="ti ti-alert-triangle" style="font-size:10px"></i>Com problema</span>':'')+
+    '</div>'+
+    '<div class="info-grid">'+
+    '<div class="ig-item"><label>Setor</label><div>'+(esc(e.setor)||'&mdash;')+'</div></div>'+
+    '<div class="ig-item"><label>Marca</label><div>'+(esc(e.marca)||'&mdash;')+'</div></div>'+
+    '<div class="ig-item"><label>Modelo</label><div>'+(esc(e.modelo)||'&mdash;')+'</div></div>'+
+    '<div class="ig-item"><label>N Serie</label><div>'+(esc(e.numSerie)||'&mdash;')+'</div></div>'+
+    '<div class="ig-item ig-two"><label>Nota Fiscal</label><div>'+(esc(e.notaFiscal)||'&mdash;')+'</div></div>'+
+    '</div>'+
+    '<div class="slbl">Fotos</div>'+
+    '<div class="photo-row" id="dp-'+id+'">'+
+    fotos.map(function(f){return '<img class="pthumb" src="'+f+'" onclick="openLB(this.src)">';}).join('')+
+    '<label class="padd" for="pinp-'+id+'"><i class="ti ti-camera"></i>Adicionar foto</label>'+
+    '<input type="file" id="pinp-'+id+'" accept="image/*" multiple style="display:none" onchange="addPhotos('+id+',this)">'+
+    '</div>'+
+    '<div class="slbl">Historico de manutencoes ('+e.historico.length+')</div>'+
+    (!e.historico.length?'<div class="empty" style="padding:16px 0"><i class="ti ti-clock"></i>Nenhuma registrada</div>':'')+
+    histHtml+
+    '<div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap;border-top:1px solid var(--border);padding-top:14px">'+
+    '<button class="btn btn-p" onclick="closeModal();openAddManut('+id+')"><i class="ti ti-plus"></i>Registrar manutencao</button>'+
+    btnProblema+
+    '<button class="btn btn-d" onclick="descartarEquip('+id+')"><i class="ti ti-trash"></i>Descartar</button>'+
+    '</div>'
+  );
 }
 
 function addPhotos(id,input){
   const e=S.equipamentos.find(x=>x.id===id);if(!e)return;if(!e.fotos)e.fotos=[];
   const files=Array.from(input.files);let done=0;
-  files.forEach(f=>{const r=new FileReader();r.onload=async ev=>{e.fotos.push(ev.target.result);done++;if(done===files.length){try{await saveEquip(e);showToast('Fotos salvas!');openDetail(id);}catch(err){showToast('Erro ao salvar fotos',true);}}};r.readAsDataURL(f);});
+  files.forEach(function(f){const r=new FileReader();r.onload=async function(ev){e.fotos.push(ev.target.result);done++;if(done===files.length){try{await saveEquip(e);showToast('Fotos salvas!');openDetail(id);}catch(err){showToast('Erro ao salvar fotos',true);}}};r.readAsDataURL(f);});
 }
-function openLB(src){const lb=document.createElement('div');lb.className='lightbox';lb.innerHTML=`<img src="${src}">`;lb.onclick=()=>lb.remove();document.body.appendChild(lb);}
+function openLB(src){const lb=document.createElement('div');lb.className='lightbox';lb.innerHTML='<img src="'+src+'">';lb.onclick=function(){lb.remove();};document.body.appendChild(lb);}
 async function delManut(eid,idx){if(!confirm('Excluir este registro?'))return;const e=S.equipamentos.find(x=>x.id===eid);e.historico.splice(idx,1);try{await saveEquip(e);showToast('Removido!');openDetail(eid);render();}catch(err){showToast('Erro',true);}}
 
 function equipForm(e,title,saveFn){
-  const tops=S.tipos.map(t=>`<option value="${esc(t)}"${e&&e.tipo===t?' selected':''}>${esc(t)}</option>`).join('');
-  openModal(`
-    <div class="mtitle"><span>${title}</span><button class="btn btn-sm btn-icon" onclick="closeModal()"><i class="ti ti-x"></i></button></div>
-    <div class="fr"><div><label class="lbl">Número</label><input class="input" id="ef-num" type="number" value="${e?e.num:nextNum()}"></div><div><label class="lbl">Nome *</label><input class="input" id="ef-nome" value="${esc(e?e.nome:'')}"></div></div>
-    <div class="fr"><div><label class="lbl">Tipo <span style="font-size:11px;color:var(--red);cursor:pointer;margin-left:4px" onclick="openTipos()">(gerenciar)</span></label><select class="input" id="ef-tipo"><option value="">— selecionar —</option>${tops}</select></div><div><label class="lbl">Setor</label><input class="input" id="ef-setor" value="${esc(e?e.setor:'')}"></div></div>
-    <div class="fr"><div><label class="lbl">Marca</label><input class="input" id="ef-marca" value="${esc(e?e.marca:'')}"></div><div><label class="lbl">Modelo</label><input class="input" id="ef-modelo" value="${esc(e?e.modelo:'')}"></div></div>
-    <div class="fr"><div><label class="lbl">Nº Série</label><input class="input" id="ef-serie" value="${esc(e?e.numSerie:'')}"></div><div><label class="lbl">Nota Fiscal</label><input class="input" id="ef-nf" value="${esc(e?e.notaFiscal:'')}"></div></div>
-    <div class="fr full" style="margin-bottom:12px"><label class="lbl">Lojas *</label><div class="cb-row">
-      <label><input type="checkbox" id="ef-ccmq"${e&&e.lojas.includes('ccmq')?' checked':''}> CCMQ</label>
-      <label><input type="checkbox" id="ef-mac"${e&&e.lojas.includes('mac')?' checked':''}> Mac</label>
-      <label><input type="checkbox" id="ef-cen"${e&&e.lojas.includes('central')?' checked':''}> Cozinha Central</label>
-    </div></div>
-    <div class="fr full"><label class="lbl">Observações</label><input class="input" id="ef-obs" value="${esc(e?e.obs:'')}"></div>
-    <div style="margin-top:16px;display:flex;justify-content:flex-end;gap:8px;border-top:1px solid var(--border);padding-top:14px">
-      <button class="btn" onclick="closeModal()">Cancelar</button>
-      <button class="btn btn-p" onclick="${saveFn}">Salvar equipamento</button>
-    </div>
-  `);
+  const tops=S.tipos.map(function(t){return'<option value="'+esc(t)+'"'+(e&&e.tipo===t?' selected':'')+'>'+esc(t)+'</option>';}).join('');
+  openModal(
+    '<div class="mtitle"><span>'+title+'</span><button class="btn btn-sm btn-icon" onclick="closeModal()"><i class="ti ti-x"></i></button></div>'+
+    '<div class="fr"><div><label class="lbl">Numero</label><input class="input" id="ef-num" type="number" value="'+(e?e.num:nextNum())+'"></div><div><label class="lbl">Nome *</label><input class="input" id="ef-nome" value="'+esc(e?e.nome:'')+'"></div></div>'+
+    '<div class="fr"><div><label class="lbl">Tipo <span style="font-size:11px;color:var(--red);cursor:pointer;margin-left:4px" onclick="openTipos()">(gerenciar)</span></label><select class="input" id="ef-tipo"><option value="">selecionar</option>'+tops+'</select></div><div><label class="lbl">Setor</label><input class="input" id="ef-setor" value="'+esc(e?e.setor:'')+'"></div></div>'+
+    '<div class="fr"><div><label class="lbl">Marca</label><input class="input" id="ef-marca" value="'+esc(e?e.marca:'')+'"></div><div><label class="lbl">Modelo</label><input class="input" id="ef-modelo" value="'+esc(e?e.modelo:'')+'"></div></div>'+
+    '<div class="fr"><div><label class="lbl">N Serie</label><input class="input" id="ef-serie" value="'+esc(e?e.numSerie:'')+'"></div><div><label class="lbl">Nota Fiscal</label><input class="input" id="ef-nf" value="'+esc(e?e.notaFiscal:'')+'"></div></div>'+
+    '<div class="fr full" style="margin-bottom:12px"><label class="lbl">Lojas *</label><div class="cb-row">'+
+    '<label><input type="checkbox" id="ef-ccmq"'+(e&&e.lojas.includes('ccmq')?' checked':'')+'>CCMQ</label>'+
+    '<label><input type="checkbox" id="ef-mac"'+(e&&e.lojas.includes('mac')?' checked':'')+'>Mac</label>'+
+    '<label><input type="checkbox" id="ef-cen"'+(e&&e.lojas.includes('central')?' checked':'')+'>Cozinha Central</label>'+
+    '</div></div>'+
+    '<div class="fr full"><label class="lbl">Observacoes</label><input class="input" id="ef-obs" value="'+esc(e?e.obs:'')+'"></div>'+
+    '<div style="margin-top:16px;display:flex;justify-content:flex-end;gap:8px;border-top:1px solid var(--border);padding-top:14px">'+
+    '<button class="btn" onclick="closeModal()">Cancelar</button>'+
+    '<button class="btn btn-p" onclick="'+saveFn+'">Salvar equipamento</button></div>'
+  );
 }
 function openNewEquip(){equipForm(null,'Novo Equipamento','saveNewEquip()');}
 async function saveNewEquip(){
@@ -411,9 +391,9 @@ async function saveNewEquip(){
   if(document.getElementById('ef-cen').checked)lojas.push('central');
   if(!lojas.length){alert('Selecione ao menos uma loja');return;}
   const e={id:Date.now(),num:parseInt(document.getElementById('ef-num').value)||nextNum(),nome,setor:document.getElementById('ef-setor').value,tipo:document.getElementById('ef-tipo').value,marca:document.getElementById('ef-marca').value,modelo:document.getElementById('ef-modelo').value,numSerie:document.getElementById('ef-serie').value,notaFiscal:document.getElementById('ef-nf').value,obs:document.getElementById('ef-obs').value,lojas,status:'ativo',fotos:[],historico:[]};
-  try{await saveEquip(e);S.equipamentos.push(e);showToast('Equipamento salvo!');closeModal();render();}catch(err){showToast('Erro ao salvar: '+err.message,true);}
+  try{await saveEquip(e);S.equipamentos.push(e);showToast('Equipamento salvo!');closeModal();render();}catch(err){showToast('Erro: '+err.message,true);}
 }
-function openEditEquip(id){const e=S.equipamentos.find(x=>x.id===id);equipForm(e,`Editar Equipamento #${e.num}`,'saveEditEquip('+id+')');}
+function openEditEquip(id){const e=S.equipamentos.find(x=>x.id===id);equipForm(e,'Editar Equipamento #'+e.num,'saveEditEquip('+id+')');}
 async function saveEditEquip(id){
   const e=S.equipamentos.find(x=>x.id===id);
   const lojas=[];
@@ -425,51 +405,48 @@ async function saveEditEquip(id){
 }
 
 function openTipos(){
-  openModal(`<div class="mtitle"><span>Gerenciar Tipos</span><button class="btn btn-sm btn-icon" onclick="closeModal()"><i class="ti ti-x"></i></button></div>
-    <div id="tlist"></div>
-    <div style="display:flex;gap:8px;margin-top:10px"><input class="input" id="tnew" placeholder="Nome do novo tipo..."><button class="btn btn-p" onclick="addTipo()"><i class="ti ti-plus"></i>Adicionar</button></div>
-    <div style="margin-top:14px;display:flex;justify-content:flex-end;border-top:1px solid var(--border);padding-top:14px"><button class="btn btn-p" onclick="closeModal()">Fechar</button></div>`);
+  openModal('<div class="mtitle"><span>Gerenciar Tipos</span><button class="btn btn-sm btn-icon" onclick="closeModal()"><i class="ti ti-x"></i></button></div><div id="tlist"></div><div style="display:flex;gap:8px;margin-top:10px"><input class="input" id="tnew" placeholder="Novo tipo..."><button class="btn btn-p" onclick="addTipo()"><i class="ti ti-plus"></i>Adicionar</button></div><div style="margin-top:14px;display:flex;justify-content:flex-end;border-top:1px solid var(--border);padding-top:14px"><button class="btn btn-p" onclick="closeModal()">Fechar</button></div>');
   rTipos();
 }
-function rTipos(){const el=document.getElementById('tlist');if(!el)return;el.innerHTML=`<div class="tag-list">${S.tipos.map((t,i)=>`<div class="tag-chip">${esc(t)}<button onclick="delTipo(${i})">&times;</button></div>`).join('')}</div>`;}
-async function addTipo(){const v=document.getElementById('tnew').value.trim();if(!v||S.tipos.includes(v)){alert(v?'Já existe':'Digite um nome');return;}try{await sbPost('tipos',{nome:v});S.tipos.push(v);document.getElementById('tnew').value='';rTipos();}catch(e){showToast('Erro',true);}}
-async function delTipo(i){if(!confirm(`Remover "${S.tipos[i]}"?`))return;try{await sbDelete('tipos',`?nome=eq.${encodeURIComponent(S.tipos[i])}`);S.tipos.splice(i,1);rTipos();}catch(e){showToast('Erro',true);}}
+function rTipos(){const el=document.getElementById('tlist');if(!el)return;el.innerHTML='<div class="tag-list">'+S.tipos.map(function(t,i){return'<div class="tag-chip">'+esc(t)+'<button onclick="delTipo('+i+')">&times;</button></div>';}).join('')+'</div>';}
+async function addTipo(){const v=document.getElementById('tnew').value.trim();if(!v||S.tipos.includes(v)){alert(v?'Ja existe':'Digite um nome');return;}try{await sbPost('tipos',{nome:v});S.tipos.push(v);document.getElementById('tnew').value='';rTipos();}catch(e){showToast('Erro',true);}}
+async function delTipo(i){if(!confirm('Remover "'+S.tipos[i]+'"?'))return;try{await sbDelete('tipos','?nome=eq.'+encodeURIComponent(S.tipos[i]));S.tipos.splice(i,1);rTipos();}catch(e){showToast('Erro',true);}}
 
 function openAddManut(id){
   const hoje=new Date().toISOString().split('T')[0];
-  openModal(`<div class="mtitle"><span>Registrar Manutenção</span><button class="btn btn-sm btn-icon" onclick="closeModal()"><i class="ti ti-x"></i></button></div>
-    <div class="fr"><div><label class="lbl">Data *</label><input class="input" type="date" id="am-data" value="${hoje}"></div><div><label class="lbl">Quem realizou</label><input class="input" id="am-quem" placeholder="Técnico ou empresa"></div></div>
-    <div class="fr full"><label class="lbl">O que foi realizado *</label><textarea class="input" id="am-desc" rows="3" placeholder="Descreva o serviço..."></textarea></div>
-    <div class="fr"><div><label class="lbl">Garantia</label><input class="input" id="am-gar" placeholder="Ex: 3 meses"></div><div><label class="lbl">Custo (R$)</label><input class="input" id="am-custo" type="number" step="0.01"></div></div>
-    <div class="fr full"><label class="lbl">Nota Fiscal</label><input class="input" id="am-nf"></div>
-    <div style="margin-top:16px;display:flex;justify-content:flex-end;gap:8px;border-top:1px solid var(--border);padding-top:14px"><button class="btn" onclick="closeModal()">Cancelar</button><button class="btn btn-p" onclick="saveManut(${id})">Registrar manutenção</button></div>`);
+  openModal('<div class="mtitle"><span>Registrar Manutencao</span><button class="btn btn-sm btn-icon" onclick="closeModal()"><i class="ti ti-x"></i></button></div>'+
+    '<div class="fr"><div><label class="lbl">Data *</label><input class="input" type="date" id="am-data" value="'+hoje+'"></div><div><label class="lbl">Quem realizou</label><input class="input" id="am-quem" placeholder="Tecnico ou empresa"></div></div>'+
+    '<div class="fr full"><label class="lbl">O que foi realizado *</label><textarea class="input" id="am-desc" rows="3" placeholder="Descreva o servico..."></textarea></div>'+
+    '<div class="fr"><div><label class="lbl">Garantia</label><input class="input" id="am-gar" placeholder="Ex: 3 meses"></div><div><label class="lbl">Custo (R$)</label><input class="input" id="am-custo" type="number" step="0.01"></div></div>'+
+    '<div class="fr full"><label class="lbl">Nota Fiscal</label><input class="input" id="am-nf"></div>'+
+    '<div style="margin-top:16px;display:flex;justify-content:flex-end;gap:8px;border-top:1px solid var(--border);padding-top:14px"><button class="btn" onclick="closeModal()">Cancelar</button><button class="btn btn-p" onclick="saveManut('+id+')">Registrar manutencao</button></div>');
 }
 async function saveManut(id){
   const desc=document.getElementById('am-desc').value.trim(),data=document.getElementById('am-data').value;
-  if(!desc||!data){alert('Data e descrição são obrigatórios');return;}
+  if(!desc||!data){alert('Data e descricao sao obrigatorios');return;}
   const e=S.equipamentos.find(x=>x.id===id);
   e.historico.push({data,desc,garantia:document.getElementById('am-gar').value,quem:document.getElementById('am-quem').value,custo:document.getElementById('am-custo').value,nf:document.getElementById('am-nf').value});
-  try{await saveEquip(e);showToast('Manutenção registrada!');closeModal();openDetail(id);render();}catch(err){showToast('Erro ao salvar',true);}
+  try{await saveEquip(e);showToast('Manutencao registrada!');closeModal();openDetail(id);render();}catch(err){showToast('Erro ao salvar',true);}
 }
 async function descartarEquip(id){
   const e=S.equipamentos.find(x=>x.id===id);
-  if(!confirm(`Descartar "${e.nome}"?`))return;
+  if(!confirm('Descartar "'+e.nome+'"?'))return;
   const d={id:Date.now(),nome:e.nome,marca:e.marca,motivo:'Descartado',data:new Date().toISOString().split('T')[0],obs:''};
   e.status='descartado';
   try{await saveEquip(e);await saveDescDB(d);S.descartes.push(d);showToast('Descartado!');closeModal();render();}catch(err){showToast('Erro',true);}
 }
 
 function openNewPrev(){
-  openModal(`<div class="mtitle"><span>Nova Preventiva</span><button class="btn btn-sm btn-icon" onclick="closeModal()"><i class="ti ti-x"></i></button></div>
-    <div class="fr full"><label class="lbl">Nome *</label><input class="input" id="np-nome"></div>
-    <div class="fr"><div><label class="lbl">Frequência (dias) *</label><input class="input" id="np-freq" type="number" placeholder="90"></div><div><label class="lbl">Última realização</label><input class="input" type="date" id="np-data"></div></div>
-    <div class="fr full" style="margin-bottom:12px"><label class="lbl">Lojas *</label><div class="cb-row"><label><input type="checkbox" id="np-ccmq"> CCMQ</label><label><input type="checkbox" id="np-mac"> Mac</label><label><input type="checkbox" id="np-cen"> Cozinha Central</label></div></div>
-    <div class="fr full"><label class="lbl">Observações</label><input class="input" id="np-obs"></div>
-    <div style="margin-top:16px;display:flex;justify-content:flex-end;gap:8px;border-top:1px solid var(--border);padding-top:14px"><button class="btn" onclick="closeModal()">Cancelar</button><button class="btn btn-p" onclick="savePrevForm()">Salvar</button></div>`);
+  openModal('<div class="mtitle"><span>Nova Preventiva</span><button class="btn btn-sm btn-icon" onclick="closeModal()"><i class="ti ti-x"></i></button></div>'+
+    '<div class="fr full"><label class="lbl">Nome *</label><input class="input" id="np-nome"></div>'+
+    '<div class="fr"><div><label class="lbl">Frequencia (dias) *</label><input class="input" id="np-freq" type="number" placeholder="90"></div><div><label class="lbl">Ultima realizacao</label><input class="input" type="date" id="np-data"></div></div>'+
+    '<div class="fr full" style="margin-bottom:12px"><label class="lbl">Lojas *</label><div class="cb-row"><label><input type="checkbox" id="np-ccmq">CCMQ</label><label><input type="checkbox" id="np-mac">Mac</label><label><input type="checkbox" id="np-cen">Cozinha Central</label></div></div>'+
+    '<div class="fr full"><label class="lbl">Observacoes</label><input class="input" id="np-obs"></div>'+
+    '<div style="margin-top:16px;display:flex;justify-content:flex-end;gap:8px;border-top:1px solid var(--border);padding-top:14px"><button class="btn" onclick="closeModal()">Cancelar</button><button class="btn btn-p" onclick="savePrevForm()">Salvar</button></div>');
 }
 async function savePrevForm(){
   const nome=document.getElementById('np-nome').value.trim(),freq=parseInt(document.getElementById('np-freq').value);
-  if(!nome||!freq){alert('Nome e frequência são obrigatórios');return;}
+  if(!nome||!freq){alert('Nome e frequencia sao obrigatorios');return;}
   const lojas=[];
   if(document.getElementById('np-ccmq').checked)lojas.push('ccmq');
   if(document.getElementById('np-mac').checked)lojas.push('mac');
@@ -480,16 +457,16 @@ async function savePrevForm(){
 }
 async function markPrev(id){
   const p=S.preventivas.find(x=>x.id===id),hoje=new Date().toISOString().split('T')[0];
-  if(confirm(`Marcar "${p.nome}" como realizada hoje (${hoje})?`)){p.ultimaData=hoje;try{await savePrevDB(p);showToast('Registrado!');render();}catch(err){showToast('Erro',true);}}
+  if(confirm('Marcar "'+p.nome+'" como realizada hoje ('+hoje+')?')){p.ultimaData=hoje;try{await savePrevDB(p);showToast('Registrado!');render();}catch(err){showToast('Erro',true);}}
 }
 
 function openNewDesc(){
   const hoje=new Date().toISOString().split('T')[0];
-  openModal(`<div class="mtitle"><span>Registrar Descarte</span><button class="btn btn-sm btn-icon" onclick="closeModal()"><i class="ti ti-x"></i></button></div>
-    <div class="fr"><div><label class="lbl">Nome *</label><input class="input" id="nd-nome"></div><div><label class="lbl">Marca</label><input class="input" id="nd-marca"></div></div>
-    <div class="fr"><div><label class="lbl">Motivo</label><input class="input" id="nd-motivo"></div><div><label class="lbl">Data</label><input class="input" type="date" id="nd-data" value="${hoje}"></div></div>
-    <div class="fr full"><label class="lbl">Observações</label><input class="input" id="nd-obs"></div>
-    <div style="margin-top:16px;display:flex;justify-content:flex-end;gap:8px;border-top:1px solid var(--border);padding-top:14px"><button class="btn" onclick="closeModal()">Cancelar</button><button class="btn btn-p" onclick="saveDescForm()">Registrar</button></div>`);
+  openModal('<div class="mtitle"><span>Registrar Descarte</span><button class="btn btn-sm btn-icon" onclick="closeModal()"><i class="ti ti-x"></i></button></div>'+
+    '<div class="fr"><div><label class="lbl">Nome *</label><input class="input" id="nd-nome"></div><div><label class="lbl">Marca</label><input class="input" id="nd-marca"></div></div>'+
+    '<div class="fr"><div><label class="lbl">Motivo</label><input class="input" id="nd-motivo"></div><div><label class="lbl">Data</label><input class="input" type="date" id="nd-data" value="'+hoje+'"></div></div>'+
+    '<div class="fr full"><label class="lbl">Observacoes</label><input class="input" id="nd-obs"></div>'+
+    '<div style="margin-top:16px;display:flex;justify-content:flex-end;gap:8px;border-top:1px solid var(--border);padding-top:14px"><button class="btn" onclick="closeModal()">Cancelar</button><button class="btn btn-p" onclick="saveDescForm()">Registrar</button></div>');
 }
 async function saveDescForm(){
   const nome=document.getElementById('nd-nome').value.trim();if(!nome){alert('Informe o nome');return;}
@@ -498,16 +475,80 @@ async function saveDescForm(){
 }
 
 function openNewCont(){
-  openModal(`<div class="mtitle"><span>Novo Contato</span><button class="btn btn-sm btn-icon" onclick="closeModal()"><i class="ti ti-x"></i></button></div>
-    <div class="fr"><div><label class="lbl">Nome *</label><input class="input" id="nc-nome"></div><div><label class="lbl">Especialidade</label><input class="input" id="nc-esp"></div></div>
-    <div class="fr full"><label class="lbl">Telefone</label><input class="input" id="nc-tel" placeholder="51 99999-9999"></div>
-    <div class="fr full"><label class="lbl">Observações</label><input class="input" id="nc-obs"></div>
-    <div style="margin-top:16px;display:flex;justify-content:flex-end;gap:8px;border-top:1px solid var(--border);padding-top:14px"><button class="btn" onclick="closeModal()">Cancelar</button><button class="btn btn-p" onclick="saveContForm()">Salvar</button></div>`);
+  openModal('<div class="mtitle"><span>Novo Contato</span><button class="btn btn-sm btn-icon" onclick="closeModal()"><i class="ti ti-x"></i></button></div>'+
+    '<div class="fr"><div><label class="lbl">Nome *</label><input class="input" id="nc-nome"></div><div><label class="lbl">Especialidade</label><input class="input" id="nc-esp"></div></div>'+
+    '<div class="fr full"><label class="lbl">Telefone</label><input class="input" id="nc-tel" placeholder="51 99999-9999"></div>'+
+    '<div class="fr full"><label class="lbl">Observacoes</label><input class="input" id="nc-obs"></div>'+
+    '<div style="margin-top:16px;display:flex;justify-content:flex-end;gap:8px;border-top:1px solid var(--border);padding-top:14px"><button class="btn" onclick="closeModal()">Cancelar</button><button class="btn btn-p" onclick="saveContForm()">Salvar</button></div>');
 }
 async function saveContForm(){
   const nome=document.getElementById('nc-nome').value.trim();if(!nome){alert('Informe o nome');return;}
   const c={id:Date.now(),nome,especialidade:document.getElementById('nc-esp').value,tel:document.getElementById('nc-tel').value,obs:document.getElementById('nc-obs').value};
   try{await saveContDB(c);S.contatos.push(c);showToast('Contato salvo!');closeModal();render();}catch(err){showToast('Erro',true);}
+}
+
+// Reportar / Resolver problema
+function reportarProblema(id){
+  const e=S.equipamentos.find(x=>x.id===id);
+  if(!e){alert('Equipamento nao encontrado');return;}
+  openModal(
+    '<div class="mtitle"><span>Reportar Problema</span>'+
+    '<button class="btn btn-sm btn-icon" onclick="closeModal()"><i class="ti ti-x"></i></button></div>'+
+    '<div style="background:#FFF8EC;border:1.5px solid #EF9F27;border-radius:10px;padding:12px;margin-bottom:14px;font-size:13px;color:#7A4F00">'+
+    '<b>#'+e.num+' '+esc(e.nome)+'</b> &mdash; '+esc(e.setor)+'</div>'+
+    '<div class="fr full"><label class="lbl">Descricao do problema *</label>'+
+    '<textarea class="input" id="rp-desc" rows="3" placeholder="Ex: Freezer nao esta gelando, fazendo barulho..."></textarea></div>'+
+    '<div class="fr">'+
+    '<div><label class="lbl">Responsavel</label><input class="input" id="rp-resp" placeholder="Nome do responsavel"></div>'+
+    '<div><label class="lbl">Prazo</label><input class="input" type="date" id="rp-prazo"></div>'+
+    '</div>'+
+    '<div style="background:var(--bg);border-radius:10px;padding:10px;font-size:12px;color:var(--muted);margin-bottom:8px">'+
+    '<i class="ti ti-info-circle"></i> Vai marcar o equipamento com problema no Painel e criar uma tarefa no app Lola.</div>'+
+    '<div style="margin-top:16px;display:flex;justify-content:flex-end;gap:8px;border-top:1px solid var(--border);padding-top:14px">'+
+    '<button class="btn" onclick="closeModal()">Cancelar</button>'+
+    '<button class="btn" style="background:#EF9F27;border-color:#EF9F27;color:#fff" onclick="salvarProblema('+id+')">'+
+    '<i class="ti ti-alert-triangle"></i>Reportar e criar tarefa</button>'+
+    '</div>'
+  );
+}
+
+async function salvarProblema(id){
+  const desc=document.getElementById('rp-desc').value.trim();
+  if(!desc){alert('Descreva o problema');return;}
+  const e=S.equipamentos.find(x=>x.id===id);
+  const resp=document.getElementById('rp-resp').value.trim();
+  const prazo=document.getElementById('rp-prazo').value;
+  e.status='problema';
+  try{
+    await saveEquip(e);
+    const tarefa={
+      id:Date.now(),
+      ata_id:null,
+      texto:'Manutencao necessaria: #'+e.num+' '+e.nome+' ('+e.setor+') - '+desc,
+      responsavel:resp||null,
+      done:false,
+      obs:'Reportado via app de Manutencoes.',
+      prazo:prazo||null,
+      status:'pendente',
+      criado_por_nome:'App Manutencoes',
+      criado_por_id:'manutencoes'
+    };
+    await sbFetch('lola_tasks',{method:'POST',body:tarefa,prefer:'return=representation'});
+    showToast('Problema reportado e tarefa criada no Lola!');
+    closeModal();
+    render();
+  }catch(err){
+    showToast('Erro: '+err.message,true);
+    console.error(err);
+  }
+}
+
+async function resolverProblema(id){
+  const e=S.equipamentos.find(x=>x.id===id);
+  if(!confirm('Marcar "'+e.nome+'" como resolvido?'))return;
+  e.status='ativo';
+  try{await saveEquip(e);showToast('Problema resolvido!');closeModal();render();}
+  catch(err){showToast('Erro ao salvar',true);}
 }
 
 loadAll();
