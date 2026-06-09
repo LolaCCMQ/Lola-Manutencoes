@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Lola Manutencoes</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Nunito:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.0.0/tabler-icons.min.css">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -113,6 +113,10 @@ select.input{cursor:pointer}
 .toast{position:fixed;bottom:20px;right:20px;background:var(--red);color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;font-weight:500;z-index:500;box-shadow:0 4px 16px rgba(0,0,0,.2);animation:fadeIn .2s}
 .toast.ok{background:#1A6636}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+  /* ===== Padronizacao tipografica (estilo Estoque) ===== */
+  body{font-family:'Nunito',sans-serif !important;}
+  .page-title,.stat-num,.card-title,.mtitle,[style*="Playfair"]{font-family:'Playfair Display',serif !important;font-weight:700 !important;font-style:normal !important;}
 </style>
 </head>
 <body>
