@@ -203,6 +203,7 @@ function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').
 function nextNum(){return S.equipamentos.length?Math.max(...S.equipamentos.map(e=>e.num))+1:1;}
 function diasProxima(p){if(!p.ultimaData)return null;const d=new Date(p.ultimaData);d.setDate(d.getDate()+p.frequenciaDias);return Math.round((d-new Date())/864e5);}
 function freqLabel(d){return d>=365?Math.round(d/365)+' ano(s)':d>=30?Math.round(d/30)+' mes(es)':d+' dias';}
+function _hoje(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function fmtDate(s){if(!s)return'';const[y,m,d]=s.split('-');return`${d}/${m}/${y}`;}
 function filteredEquip(){
   const q=(S.search||'').toLowerCase();
@@ -326,7 +327,7 @@ function openDetail(id){
   const fotos=e.fotos||[];
   const histHtml=[...e.historico].reverse().map(function(h,ri){
     const oi=e.historico.length-1-ri;
-    return '<div class="hist-item"><div style="display:flex;justify-content:space-between;align-items:flex-start"><div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center"><span class="badge b-gray">'+fmtDate(h.data)+'</span>'+(h.quem?'<span class="badge b-purple"><i class="ti ti-tool" style="font-size:10px"></i>'+esc(h.quem)+'</span>':'')+(h.garantia?'<span class="badge b-ok">Garantia: '+esc(h.garantia)+'</span>':'')+'</div><button class="btn btn-sm btn-d btn-icon" onclick="delManut('+id+','+oi+')"><i class="ti ti-trash"></i></button></div><div style="margin:6px 0;font-size:13px;font-weight:500">'+esc(h.desc)+'</div><div class="hdate">'+[h.custo?'R$ '+h.custo:'',h.nf?'NF: '+esc(h.nf):''].filter(Boolean).join(' - ')+'</div></div>';
+    return '<div class="hist-item"><div style="display:flex;justify-content:space-between;align-items:flex-start"><div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center"><span class="badge b-gray">'+fmtDate(h.data)+'</span>'+(h.quem?'<span class="badge b-purple"><i class="ti ti-tool" style="font-size:10px"></i>'+esc(h.quem)+'</span>':'')+(h.garantia?'<span class="badge b-ok">Garantia: '+esc(h.garantia)+'</span>':'')+'</div><button class="btn btn-sm btn-icon" onclick="openEditManut('+id+','+oi+')" style="margin-right:4px"><i class="ti ti-edit"></i></button><button class="btn btn-sm btn-d btn-icon" onclick="delManut('+id+','+oi+')"><i class="ti ti-trash"></i></button></div><div style="margin:6px 0;font-size:13px;font-weight:500">'+esc(h.desc)+'</div><div class="hdate">'+[h.custo?'R$ '+h.custo:'',h.nf?'NF: '+esc(h.nf):''].filter(Boolean).join(' - ')+'</div></div>';
   }).join('');
   const btnProblema = e.status==='problema'
     ? '<button class="btn" style="background:#DFFAE8;border-color:#3A9B57;color:#1A6636" onclick="resolverProblema('+id+')"><i class="ti ti-circle-check"></i>Marcar resolvido</button>'
@@ -424,8 +425,26 @@ function rTipos(){const el=document.getElementById('tlist');if(!el)return;el.inn
 async function addTipo(){const v=document.getElementById('tnew').value.trim();if(!v||S.tipos.includes(v)){alert(v?'Ja existe':'Digite um nome');return;}try{await sbPost('tipos',{nome:v});S.tipos.push(v);document.getElementById('tnew').value='';rTipos();}catch(e){showToast('Erro',true);}}
 async function delTipo(i){if(!confirm('Remover "'+S.tipos[i]+'"?'))return;try{await sbDelete('tipos','?nome=eq.'+encodeURIComponent(S.tipos[i]));S.tipos.splice(i,1);rTipos();}catch(e){showToast('Erro',true);}}
 
+function openEditManut(id, oi){
+  var e=S.equipamentos.find(function(x){return x.id===id;}); if(!e||!e.historico||!e.historico[oi])return;
+  var h=e.historico[oi];
+  openModal('<div class="mtitle"><span>Editar Manutencao</span><button class="btn btn-sm btn-icon" onclick="closeModal()"><i class="ti ti-x"></i></button></div>'+
+    '<div class="fr"><div><label class="lbl">Data *</label><input class="input" type="date" id="em-data" value="'+(h.data||'')+'"></div><div><label class="lbl">Quem realizou</label><input class="input" id="em-quem" value="'+esc(h.quem||'')+'"></div></div>'+
+    '<div class="fr full"><label class="lbl">O que foi realizado *</label><textarea class="input" id="em-desc" rows="3">'+esc(h.desc||'')+'</textarea></div>'+
+    '<div class="fr"><div><label class="lbl">Garantia</label><input class="input" id="em-gar" value="'+esc(h.garantia||'')+'"></div><div><label class="lbl">Custo (R$)</label><input class="input" id="em-custo" type="number" step="0.01" value="'+(h.custo||'')+'"></div></div>'+
+    '<div class="fr full"><label class="lbl">Nota Fiscal</label><input class="input" id="em-nf" value="'+esc(h.nf||'')+'"></div>'+
+    '<div style="margin-top:16px;display:flex;justify-content:flex-end;gap:8px;border-top:1px solid var(--border);padding-top:14px"><button class="btn" onclick="closeModal()">Cancelar</button><button class="btn btn-p" onclick="saveEditManut('+id+','+oi+')"><i class="ti ti-device-floppy"></i>Salvar</button></div>');
+}
+async function saveEditManut(id, oi){
+  var e=S.equipamentos.find(function(x){return x.id===id;}); if(!e||!e.historico||!e.historico[oi])return;
+  var desc=document.getElementById('em-desc').value.trim(), data=document.getElementById('em-data').value;
+  if(!desc||!data){alert('Data e descricao sao obrigatorios');return;}
+  e.historico[oi]={data:data,desc:desc,garantia:document.getElementById('em-gar').value,quem:document.getElementById('em-quem').value,custo:document.getElementById('em-custo').value,nf:document.getElementById('em-nf').value};
+  try{await saveEquip(e);showToast('Manutencao atualizada!');closeModal();openDetail(id);render();}catch(err){showToast('Erro ao salvar',true);}
+}
 function openAddManut(id){
-  const hoje=new Date().toISOString().split('T')[0];
+
+  const hoje=_hoje();
   openModal('<div class="mtitle"><span>Registrar Manutencao</span><button class="btn btn-sm btn-icon" onclick="closeModal()"><i class="ti ti-x"></i></button></div>'+
     '<div class="fr"><div><label class="lbl">Data *</label><input class="input" type="date" id="am-data" value="'+hoje+'"></div><div><label class="lbl">Quem realizou</label><input class="input" id="am-quem" placeholder="Tecnico ou empresa"></div></div>'+
     '<div class="fr full"><label class="lbl">O que foi realizado *</label><textarea class="input" id="am-desc" rows="3" placeholder="Descreva o servico..."></textarea></div>'+
@@ -443,7 +462,7 @@ async function saveManut(id){
 async function descartarEquip(id){
   const e=S.equipamentos.find(x=>x.id===id);
   if(!confirm('Descartar "'+e.nome+'"?'))return;
-  const d={id:Date.now(),nome:e.nome,marca:e.marca,motivo:'Descartado',data:new Date().toISOString().split('T')[0],obs:''};
+  const d={id:Date.now(),nome:e.nome,marca:e.marca,motivo:'Descartado',data:_hoje(),obs:''};
   e.status='descartado';
   try{await saveEquip(e);await saveDescDB(d);S.descartes.push(d);showToast('Descartado!');closeModal();render();}catch(err){showToast('Erro',true);}
 }
@@ -468,7 +487,7 @@ async function savePrevForm(){
   try{await savePrevDB(p);S.preventivas.push(p);showToast('Preventiva salva!');closeModal();render();}catch(err){showToast('Erro ao salvar',true);}
 }
 async function markPrev(id){
-  const p=S.preventivas.find(x=>x.id===id),hoje=new Date().toISOString().split('T')[0];
+  const p=S.preventivas.find(x=>x.id===id),hoje=_hoje();
   if(confirm('Marcar "'+p.nome+'" como realizada hoje ('+hoje+')?')){p.ultimaData=hoje;try{await savePrevDB(p);showToast('Registrado!');render();}catch(err){showToast('Erro',true);}}
 }
 
@@ -501,7 +520,7 @@ async function delPrev(id){
 }
 
 function openNewDesc(){
-  const hoje=new Date().toISOString().split('T')[0];
+  const hoje=_hoje();
   openModal('<div class="mtitle"><span>Registrar Descarte</span><button class="btn btn-sm btn-icon" onclick="closeModal()"><i class="ti ti-x"></i></button></div>'+
     '<div class="fr"><div><label class="lbl">Nome *</label><input class="input" id="nd-nome"></div><div><label class="lbl">Marca</label><input class="input" id="nd-marca"></div></div>'+
     '<div class="fr"><div><label class="lbl">Motivo</label><input class="input" id="nd-motivo"></div><div><label class="lbl">Data</label><input class="input" type="date" id="nd-data" value="'+hoje+'"></div></div>'+
