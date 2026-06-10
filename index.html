@@ -252,7 +252,7 @@ function renderPainel(){
   }
   if(alertas.length){
     h+=`<div class="card" style="border-left:4px solid var(--red)"><div style="font-size:14px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:7px;color:var(--red)"><i class="ti ti-bell-ringing"></i>Alertas de manutencao preventiva</div>`;
-    alertas.forEach(a=>{const d=diasProxima(a),cor=d<=0?'dr':d<=7?'da':'dg',txt=d<0?`Vencida ha ${Math.abs(d)} dias`:d===0?'Vence hoje':`Vence em ${d} dias`;h+=`<div class="al-item"><div class="adot ${cor}"></div><div style="flex:1"><div style="font-size:13px;font-weight:600">${esc(a.nome)}</div><div style="font-size:12px;color:var(--muted)">${esc(a.obs)||'A cada '+freqLabel(a.frequenciaDias)}</div></div><span style="font-size:12px;font-weight:500;color:${d<=0?'var(--red)':d<=7?'#B7770D':'var(--muted)'}">${txt}</span></div>`;});
+    alertas.forEach(a=>{const d=diasProxima(a),cor=d<=0?'dr':d<=7?'da':'dg',txt=d<0?`Vencida ha ${Math.abs(d)} dias`:d===0?'Vence hoje':`Vence em ${d} dias`;h+=`<div class="al-item" style="cursor:pointer" onclick="setTab('prev')"><div class="adot ${cor}"></div><div style="flex:1"><div style="font-size:13px;font-weight:600">${esc(a.nome)}</div><div style="font-size:12px;color:var(--muted)">${esc(a.obs)||'A cada '+freqLabel(a.frequenciaDias)}</div></div><span style="font-size:12px;font-weight:500;color:${d<=0?'var(--red)':d<=7?'#B7770D':'var(--muted)'}">${txt}</span></div>`;});
     h+=`</div>`;
   }
   const rec=[];
