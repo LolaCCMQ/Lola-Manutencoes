@@ -300,7 +300,7 @@ function renderPrev(){
   if(!lista.length)h+=`<div class="empty"><i class="ti ti-calendar-check"></i>Nenhuma preventiva</div>`;
   lista.forEach(p=>{
     const d=diasProxima(p),cls=d===null?'b-ok':d<=0?'b-bad':d<=14?'b-warn':'b-ok',txt=d===null?'Sem data':d<0?`Vencida ha ${Math.abs(d)} dias`:d===0?'Vence hoje':`Proxima em ${d} dias`,icon=d===null||d>14?'ti-circle-check':d<=0?'ti-alert-circle':'ti-clock-exclamation';
-    h+=`<div class="card"><div class="card-top"><span class="badge ${cls}"><i class="ti ${icon}" style="font-size:11px"></i>${txt}</span>${p.lojas.map(l=>`<span class="badge b-loja">${LOJAS[l]}</span>`).join('')}<span class="badge b-gray">A cada ${freqLabel(p.frequenciaDias)}</span></div><div class="card-title" style="font-size:16px;cursor:default">${esc(p.nome)}</div>${p.obs?`<div style="font-size:13px;color:var(--muted);margin-bottom:8px">${esc(p.obs)}</div>`:'<div style="margin-bottom:8px"></div>'}<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">${p.ultimaData?`<div style="font-size:12px;color:var(--muted)">Ultima realizacao: ${fmtDate(p.ultimaData)}</div>`:''}<button class="btn btn-sm btn-p" onclick="markPrev(${p.id})"><i class="ti ti-check"></i>Marcar como realizada</button></div></div>`;
+    h+=`<div class="card"><div class="card-top"><span class="badge ${cls}"><i class="ti ${icon}" style="font-size:11px"></i>${txt}</span>${p.lojas.map(l=>`<span class="badge b-loja">${LOJAS[l]}</span>`).join('')}<span class="badge b-gray">A cada ${freqLabel(p.frequenciaDias)}</span></div><div class="card-title" style="font-size:16px;cursor:default">${esc(p.nome)}</div>${p.obs?`<div style="font-size:13px;color:var(--muted);margin-bottom:8px">${esc(p.obs)}</div>`:'<div style="margin-bottom:8px"></div>'}<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">${p.ultimaData?`<div style="font-size:12px;color:var(--muted)">Ultima realizacao: ${fmtDate(p.ultimaData)}</div>`:''}<div style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn btn-sm btn-outline" onclick="openEditPrev(${p.id})"><i class="ti ti-edit"></i>Editar</button><button class="btn btn-sm" style="background:#FEE2E2;border-color:#e0a0a0;color:#C0392B" onclick="delPrev(${p.id})"><i class="ti ti-trash"></i>Excluir</button><button class="btn btn-sm btn-p" onclick="markPrev(${p.id})"><i class="ti ti-check"></i>Marcar como realizada</button></div></div></div>`;
   });
   return h;
 }
@@ -472,6 +472,34 @@ async function markPrev(id){
   if(confirm('Marcar "'+p.nome+'" como realizada hoje ('+hoje+')?')){p.ultimaData=hoje;try{await savePrevDB(p);showToast('Registrado!');render();}catch(err){showToast('Erro',true);}}
 }
 
+function openEditPrev(id){
+  const p=S.preventivas.find(x=>x.id===id); if(!p) return;
+  const ck=function(l){return p.lojas.indexOf(l)>=0?' checked':'';};
+  openModal('<div class="mtitle"><span>Editar Preventiva</span><button class="btn btn-sm btn-icon" onclick="closeModal()"><i class="ti ti-x"></i></button></div>'+
+    '<div class="fr full"><label class="lbl">Nome *</label><input class="input" id="ep-nome" value="'+esc(p.nome)+'"></div>'+
+    '<div class="fr"><div><label class="lbl">Frequencia (dias) *</label><input class="input" id="ep-freq" type="number" value="'+(p.frequenciaDias||'')+'"></div><div><label class="lbl">Ultima realizacao</label><input class="input" type="date" id="ep-data" value="'+(p.ultimaData||'')+'"></div></div>'+
+    '<div class="fr full" style="margin-bottom:12px"><label class="lbl">Lojas *</label><div class="cb-row"><label><input type="checkbox" id="ep-ccmq"'+ck('ccmq')+'>CCMQ</label><label><input type="checkbox" id="ep-mac"'+ck('mac')+'>Mac</label><label><input type="checkbox" id="ep-cen"'+ck('central')+'>Cozinha Central</label></div></div>'+
+    '<div class="fr full"><label class="lbl">Observacoes</label><input class="input" id="ep-obs" value="'+esc(p.obs||'')+'"></div>'+
+    '<div style="margin-top:16px;display:flex;justify-content:flex-end;gap:8px;border-top:1px solid var(--border);padding-top:14px"><button class="btn" onclick="closeModal()">Cancelar</button><button class="btn btn-p" onclick="saveEditPrev('+id+')"><i class="ti ti-device-floppy"></i>Salvar</button></div>');
+}
+async function saveEditPrev(id){
+  const p=S.preventivas.find(x=>x.id===id); if(!p) return;
+  const nome=document.getElementById('ep-nome').value.trim(), freq=parseInt(document.getElementById('ep-freq').value);
+  if(!nome||!freq){alert('Nome e frequencia sao obrigatorios');return;}
+  const lojas=[];
+  if(document.getElementById('ep-ccmq').checked)lojas.push('ccmq');
+  if(document.getElementById('ep-mac').checked)lojas.push('mac');
+  if(document.getElementById('ep-cen').checked)lojas.push('central');
+  if(!lojas.length){alert('Selecione ao menos uma loja');return;}
+  p.nome=nome; p.frequenciaDias=freq; p.lojas=lojas; p.ultimaData=document.getElementById('ep-data').value; p.obs=document.getElementById('ep-obs').value;
+  try{await savePrevDB(p);showToast('Preventiva atualizada!');closeModal();render();}catch(err){showToast('Erro ao salvar',true);}
+}
+async function delPrev(id){
+  const p=S.preventivas.find(x=>x.id===id); if(!p) return;
+  if(!confirm('Excluir a preventiva "'+p.nome+'"? Esta acao nao pode ser desfeita.'))return;
+  try{await sbDelete('preventivas','?id=eq.'+id);S.preventivas=S.preventivas.filter(x=>x.id!==id);showToast('Preventiva excluida!');render();}catch(err){showToast('Erro ao excluir',true);}
+}
+
 function openNewDesc(){
   const hoje=new Date().toISOString().split('T')[0];
   openModal('<div class="mtitle"><span>Registrar Descarte</span><button class="btn btn-sm btn-icon" onclick="closeModal()"><i class="ti ti-x"></i></button></div>'+
@@ -563,6 +591,21 @@ async function resolverProblema(id){
 }
 
 loadAll();
+
+// ── MODO EMBUTIDO (portal Lola) ──
+(function(){
+  var q=new URLSearchParams(location.search);
+  if(q.get('embed')!=='1') return;
+  var st=document.createElement('style');
+  st.textContent='.topbar{display:none!important}.embed .app{max-width:100%!important;box-shadow:none!important}';
+  document.head.appendChild(st);
+  document.body.classList.add('embed');
+  function go(pg){ if(pg&&typeof setTab==='function'){ try{ setTab(pg); }catch(e){} } }
+  window.addEventListener('message',function(e){ var d=(e&&e.data)||{}; if(d.type==='lola-nav'&&d.page) go(d.page); });
+  var pg=q.get('page');
+  if(pg){ var n=0,iv=setInterval(function(){ n++; go(pg); if((typeof S!=='undefined'&&S.tab===pg)||n>15) clearInterval(iv); },200); }
+  try{ if(window.parent&&window.parent!==window) window.parent.postMessage({type:'lola-ready'},'*'); }catch(_){}
+})();
 </script>
 </body>
 </html>
