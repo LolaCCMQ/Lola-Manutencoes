@@ -188,6 +188,10 @@ function mapEq(r){return{id:r.id,num:r.num,nome:r.nome,setor:r.setor||'',lojas:r
 function mapPrev(r){return{id:r.id,nome:r.nome,frequenciaDias:r.frequencia_dias,lojas:r.lojas||[],ultimaData:r.ultima_data||'',obs:r.obs||''};}
 
 async function saveEquip(e){await sbUpsert('equipamentos',{id:e.id,num:e.num,nome:e.nome,setor:e.setor,lojas:e.lojas,tipo:e.tipo,marca:e.marca,modelo:e.modelo,num_serie:e.numSerie,nota_fiscal:e.notaFiscal,obs:e.obs,status:e.status,fotos:e.fotos,historico:e.historico});}
+// PATCH parcial: nao reenvia fotos (evita payload gigante de equipamentos com fotos pesadas)
+async function sbPatch(t,fields,id){return sbFetch(t,{method:'PATCH',body:fields,query:'?id=eq.'+id,prefer:'return=representation'});}
+async function saveHist(e){await sbPatch('equipamentos',{historico:e.historico},e.id);}
+async function saveStatusHist(e){await sbPatch('equipamentos',{status:e.status,historico:e.historico},e.id);}
 async function savePrevDB(p){await sbUpsert('preventivas',{id:p.id,nome:p.nome,frequencia_dias:p.frequenciaDias,lojas:p.lojas,ultima_data:p.ultimaData,obs:p.obs});}
 async function saveDescDB(d){await sbUpsert('descartes',{id:d.id,nome:d.nome,marca:d.marca,motivo:d.motivo,data:d.data,obs:d.obs});}
 async function saveContDB(c){await sbUpsert('contatos',{id:c.id,nome:c.nome,especialidade:c.especialidade,tel:c.tel,obs:c.obs});}
@@ -374,7 +378,7 @@ function addPhotos(id,input){
   files.forEach(function(f){const r=new FileReader();r.onload=async function(ev){e.fotos.push(ev.target.result);done++;if(done===files.length){try{await saveEquip(e);showToast('Fotos salvas!');openDetail(id);}catch(err){showToast('Erro ao salvar fotos',true);}}};r.readAsDataURL(f);});
 }
 function openLB(src){const lb=document.createElement('div');lb.className='lightbox';lb.innerHTML='<img src="'+src+'">';lb.onclick=function(){lb.remove();};document.body.appendChild(lb);}
-async function delManut(eid,idx){if(!confirm('Excluir este registro?'))return;const e=S.equipamentos.find(x=>x.id===eid);e.historico.splice(idx,1);try{await saveEquip(e);showToast('Removido!');openDetail(eid);render();}catch(err){showToast('Erro',true);}}
+async function delManut(eid,idx){if(!confirm('Excluir este registro?'))return;const e=S.equipamentos.find(x=>x.id===eid);e.historico.splice(idx,1);try{await saveHist(e);showToast('Removido!');openDetail(eid);render();}catch(err){showToast('Erro',true);}}
 
 function equipForm(e,title,saveFn){
   const tops=S.tipos.map(function(t){return'<option value="'+esc(t)+'"'+(e&&e.tipo===t?' selected':'')+'>'+esc(t)+'</option>';}).join('');
@@ -440,7 +444,7 @@ async function saveEditManut(id, oi){
   var desc=document.getElementById('em-desc').value.trim(), data=document.getElementById('em-data').value;
   if(!desc||!data){alert('Data e descricao sao obrigatorios');return;}
   e.historico[oi]={data:data,desc:desc,garantia:document.getElementById('em-gar').value,quem:document.getElementById('em-quem').value,custo:document.getElementById('em-custo').value,nf:document.getElementById('em-nf').value};
-  try{await saveEquip(e);showToast('Manutencao atualizada!');closeModal();openDetail(id);render();}catch(err){showToast('Erro ao salvar',true);}
+  try{await saveHist(e);showToast('Manutencao atualizada!');closeModal();openDetail(id);render();}catch(err){showToast('Erro ao salvar',true);}
 }
 function openAddManut(id){
 
@@ -457,7 +461,7 @@ async function saveManut(id){
   if(!desc||!data){alert('Data e descricao sao obrigatorios');return;}
   const e=S.equipamentos.find(x=>x.id===id);
   e.historico.push({data,desc,garantia:document.getElementById('am-gar').value,quem:document.getElementById('am-quem').value,custo:document.getElementById('am-custo').value,nf:document.getElementById('am-nf').value});
-  try{await saveEquip(e);showToast('Manutencao registrada!');closeModal();openDetail(id);render();}catch(err){showToast('Erro ao salvar',true);}
+  try{await saveHist(e);showToast('Manutencao registrada!');closeModal();openDetail(id);render();}catch(err){showToast('Erro ao salvar',true);}
 }
 async function descartarEquip(id){
   const e=S.equipamentos.find(x=>x.id===id);
@@ -579,7 +583,7 @@ async function salvarProblema(id){
   const prazo=document.getElementById('rp-prazo').value;
   e.status='problema';
   try{
-    await saveEquip(e);
+    await saveStatusHist(e);
     const tarefa={
       ata_id:null,
       texto:'Manutencao necessaria: #'+e.num+' '+e.nome+' ('+e.setor+') - '+desc,
@@ -605,7 +609,7 @@ async function resolverProblema(id){
   const e=S.equipamentos.find(x=>x.id===id);
   if(!confirm('Marcar "'+e.nome+'" como resolvido?'))return;
   e.status='ativo';
-  try{await saveEquip(e);showToast('Problema resolvido!');closeModal();render();}
+  try{await saveStatusHist(e);showToast('Problema resolvido!');closeModal();render();}
   catch(err){showToast('Erro ao salvar',true);}
 }
 
