@@ -192,6 +192,7 @@ async function saveEquip(e){await sbUpsert('equipamentos',{id:e.id,num:e.num,nom
 async function sbPatch(t,fields,id){return sbFetch(t,{method:'PATCH',body:fields,query:'?id=eq.'+id,prefer:'return=representation'});}
 async function saveHist(e){await sbPatch('equipamentos',{historico:e.historico},e.id);}
 async function saveStatusHist(e){await sbPatch('equipamentos',{status:e.status,historico:e.historico},e.id);}
+async function saveFotos(e){await sbPatch('equipamentos',{fotos:e.fotos},e.id);}
 async function savePrevDB(p){await sbUpsert('preventivas',{id:p.id,nome:p.nome,frequencia_dias:p.frequenciaDias,lojas:p.lojas,ultima_data:p.ultimaData,obs:p.obs});}
 async function saveDescDB(d){await sbUpsert('descartes',{id:d.id,nome:d.nome,marca:d.marca,motivo:d.motivo,data:d.data,obs:d.obs});}
 async function saveContDB(c){await sbUpsert('contatos',{id:c.id,nome:c.nome,especialidade:c.especialidade,tel:c.tel,obs:c.obs});}
@@ -374,8 +375,20 @@ function openDetail(id){
 
 function addPhotos(id,input){
   const e=S.equipamentos.find(x=>x.id===id);if(!e)return;if(!e.fotos)e.fotos=[];
-  const files=Array.from(input.files);let done=0;
-  files.forEach(function(f){const r=new FileReader();r.onload=async function(ev){e.fotos.push(ev.target.result);done++;if(done===files.length){try{await saveEquip(e);showToast('Fotos salvas!');openDetail(id);}catch(err){showToast('Erro ao salvar fotos',true);}}};r.readAsDataURL(f);});
+  const files=Array.from(input.files);if(!files.length)return;
+  showToast('Enviando foto(s)...');
+  (async function(){
+    try{
+      for(const f of files){
+        var ext=(f.name&&f.name.indexOf('.')>=0?f.name.split('.').pop():'jpg').toLowerCase().replace(/[^a-z0-9]/g,'')||'jpg';
+        var path='manutencoes/'+id+'/'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.'+ext;
+        var up=await fetch(SB_URL+'/storage/v1/object/anexos/'+path,{method:'POST',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':f.type||'application/octet-stream','x-upsert':'true'},body:f});
+        if(!up.ok)throw new Error(await up.text());
+        e.fotos.push(SB_URL+'/storage/v1/object/public/anexos/'+path);
+      }
+      await saveFotos(e);showToast('Fotos salvas!');openDetail(id);
+    }catch(err){showToast('Erro ao salvar fotos',true);console.error(err);}
+  })();
 }
 function openLB(src){const lb=document.createElement('div');lb.className='lightbox';lb.innerHTML='<img src="'+src+'">';lb.onclick=function(){lb.remove();};document.body.appendChild(lb);}
 async function delManut(eid,idx){if(!confirm('Excluir este registro?'))return;const e=S.equipamentos.find(x=>x.id===eid);e.historico.splice(idx,1);try{await saveHist(e);showToast('Removido!');openDetail(eid);render();}catch(err){showToast('Erro',true);}}
