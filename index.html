@@ -5,37 +5,38 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Lola Manutencoes</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Nunito:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500;1,9..144,600&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.0.0/tabler-icons.min.css">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--red:#8B1A1A;--red-light:#FDECEA;--red-mid:#C0392B;--border:#E8E0D8;--bg:#FAF8F5;--white:#FFFFFF;--text:#1A1A1A;--muted:#888078;--green-bg:#DFFAE8;--green:#1A6636;--yellow-bg:#FFF3CC;--yellow:#7A5500;--blue-bg:#E0EDFF;--blue:#1A3F7A;--orange-bg:#FDE8D8;--orange:#7A3000;--purple-bg:#EDE0FF;--purple:#4A1A7A;}
-body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+:root{--red:#A82A2A;--red-light:#FBEDEC;--red-mid:#B5302E;--border:#ECE3D9;--bg:#FBF7F1;--white:#FFFFFF;--text:#2A1A17;--muted:#92837B;--grad:linear-gradient(135deg,#B5302E,#7E1E1F);--green-bg:#DFFAE8;--green:#1A6636;--yellow-bg:#FFF3CC;--yellow:#7A5500;--blue-bg:#E0EDFF;--blue:#1A3F7A;--orange-bg:#FDE8D8;--orange:#7A3000;--purple-bg:#EDE0FF;--purple:#4A1A7A;}
+body{font-family:'Hanken Grotesk',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 .app{display:flex;flex-direction:column;height:100vh;max-width:900px;margin:0 auto;background:var(--white);box-shadow:0 0 40px rgba(0,0,0,.06)}
-.topbar{background:var(--white);border-bottom:1.5px solid var(--border);padding:0 20px;display:flex;align-items:center;height:56px;gap:16px;flex-shrink:0}
+.topbar{background:var(--grad);border-bottom:none;padding:0 20px;display:flex;align-items:center;height:56px;gap:16px;flex-shrink:0;color:#fff}
+.topbar img{background:#fff;padding:3px 7px;border-radius:8px}
 .topbar-nav{display:flex;gap:2px;margin-left:auto}
-.tnav{padding:6px 12px;border-radius:6px;font-size:13px;cursor:pointer;border:none;background:transparent;color:var(--muted);font-family:'Inter',sans-serif;display:flex;align-items:center;gap:5px;transition:all .15s;white-space:nowrap}
-.tnav:hover,.tnav.active{background:var(--red-light);color:var(--red)}
+.tnav{padding:6px 12px;border-radius:6px;font-size:13px;cursor:pointer;border:none;background:transparent;color:rgba(255,255,255,.85);font-family:'Hanken Grotesk',sans-serif;display:flex;align-items:center;gap:5px;transition:all .15s;white-space:nowrap}
+.tnav:hover,.tnav.active{background:#fff;color:var(--red)}
 .tnav.active{font-weight:600}
 .tnav i{font-size:15px}
 .pill-bar{padding:12px 20px;display:flex;gap:8px;flex-wrap:wrap;background:var(--white);border-bottom:1px solid var(--border);flex-shrink:0}
-.pill{padding:5px 14px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1.5px solid var(--border);background:transparent;color:var(--muted);transition:all .15s;white-space:nowrap;font-family:'Inter',sans-serif}
+.pill{padding:5px 14px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1.5px solid var(--border);background:transparent;color:var(--muted);transition:all .15s;white-space:nowrap;font-family:'Hanken Grotesk',sans-serif}
 .pill.active{background:var(--red);border-color:var(--red);color:#fff}
 .pill:hover:not(.active){border-color:var(--red);color:var(--red)}
 .content{flex:1;overflow-y:auto;padding:20px;background:var(--bg)}
-.page-title{font-family:'Playfair Display',serif;font-size:24px;color:var(--text);margin-bottom:16px}
+.page-title{font-family:'Fraunces',serif;font-size:24px;color:var(--text);margin-bottom:16px}
 .filter-bar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
-.filter-bar .inp{flex:1;min-width:140px;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'Inter',sans-serif;background:var(--white);color:var(--text)}
+.filter-bar .inp{flex:1;min-width:140px;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'Hanken Grotesk',sans-serif;background:var(--white);color:var(--text)}
 .filter-bar .inp:focus{outline:none;border-color:var(--red)}
 .filter-bar select.inp{cursor:pointer;min-width:130px;flex:0 0 auto}
 .stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
 .stat-card{background:var(--white);border:1.5px solid var(--border);border-radius:12px;padding:14px;text-align:center}
-.stat-num{font-family:'Playfair Display',serif;font-size:28px;color:var(--red)}
+.stat-num{font-family:'Fraunces',serif;font-size:28px;color:var(--red)}
 .stat-lbl{font-size:11px;color:var(--muted);margin-top:2px;font-weight:500;text-transform:uppercase;letter-spacing:.4px}
-.card{background:var(--white);border:1.5px solid var(--border);border-radius:14px;padding:16px 18px;margin-bottom:12px;transition:box-shadow .15s}
+.card{background:var(--white);border:1.5px solid var(--border);border-radius:20px;padding:16px 18px;margin-bottom:12px;transition:box-shadow .15s;box-shadow:0 8px 24px rgba(168,42,42,.07)}
 .card:hover{box-shadow:0 4px 16px rgba(139,26,26,.07)}
 .card-top{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
-.card-title{font-family:'Playfair Display',serif;font-size:18px;color:var(--text);margin-bottom:4px}
+.card-title{font-family:'Fraunces',serif;font-size:18px;color:var(--text);margin-bottom:4px}
 .badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
 .b-ok{background:var(--green-bg);color:var(--green)}
 .b-warn{background:var(--yellow-bg);color:var(--yellow)}
@@ -45,9 +46,9 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .b-gray{background:#F0ECE8;color:var(--muted)}
 .b-purple{background:var(--purple-bg);color:var(--purple)}
 .b-problema{background:#FFF0CC;color:#7A4F00}
-.btn{padding:7px 14px;border-radius:8px;border:1.5px solid var(--border);background:var(--white);color:var(--text);font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .15s;font-family:'Inter',sans-serif;font-weight:500}
+.btn{padding:7px 14px;border-radius:8px;border:1.5px solid var(--border);background:var(--white);color:var(--text);font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .15s;font-family:'Hanken Grotesk',sans-serif;font-weight:500}
 .btn:hover{background:var(--bg)}
-.btn-p{background:var(--red);border-color:var(--red);color:#fff}
+.btn-p{background:var(--grad);border-color:var(--red);color:#fff}
 .btn-p:hover{background:var(--red-mid)}
 .btn-sm{padding:5px 11px;font-size:12px}
 .btn-icon{padding:5px;min-width:28px;justify-content:center;border-radius:7px}
@@ -55,7 +56,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .btn-d:hover{background:var(--red-light)}
 .btn-outline{border-color:var(--red);color:var(--red);background:transparent}
 .btn-outline:hover{background:var(--red-light)}
-.input{width:100%;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;background:var(--white);color:var(--text);font-size:13px;font-family:'Inter',sans-serif}
+.input{width:100%;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;background:var(--white);color:var(--text);font-size:13px;font-family:'Hanken Grotesk',sans-serif}
 .input:focus{outline:none;border-color:var(--red)}
 textarea.input{resize:vertical}
 select.input{cursor:pointer}
@@ -66,14 +67,14 @@ select.input{cursor:pointer}
 .cb-row label{display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer}
 .modal-bd{position:fixed;inset:0;background:rgba(30,10,10,.5);display:flex;align-items:flex-start;justify-content:center;padding:20px;z-index:200;overflow-y:auto;backdrop-filter:blur(2px)}
 .modal{background:var(--white);border-radius:16px;border:1.5px solid var(--border);width:100%;max-width:580px;padding:20px;margin:auto;box-shadow:0 20px 60px rgba(0,0,0,.15)}
-.mtitle{font-family:'Playfair Display',serif;font-size:19px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.mtitle{font-family:'Fraunces',serif;font-size:19px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:8px}
 .mtitle span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .slbl{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin:16px 0 8px;display:flex;align-items:center;gap:6px}
 .slbl::after{content:'';flex:1;height:1px;background:var(--border)}
 .photo-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px}
 .pthumb{width:76px;height:76px;border-radius:10px;object-fit:cover;border:1.5px solid var(--border);cursor:pointer;transition:transform .15s}
 .pthumb:hover{transform:scale(1.05)}
-.padd{width:76px;height:76px;border-radius:10px;border:1.5px dashed #ccc;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);font-size:10px;gap:3px;transition:all .15s;background:none;font-family:'Inter',sans-serif}
+.padd{width:76px;height:76px;border-radius:10px;border:1.5px dashed #ccc;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);font-size:10px;gap:3px;transition:all .15s;background:none;font-family:'Hanken Grotesk',sans-serif}
 .padd:hover{border-color:var(--red);color:var(--red)}
 .padd i{font-size:22px}
 .hist-item{padding:10px 0;border-bottom:1px solid var(--border);font-size:13px}
@@ -115,8 +116,8 @@ select.input{cursor:pointer}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
   /* ===== Padronizacao tipografica (estilo Estoque) ===== */
-  body{font-family:'Nunito',sans-serif !important;}
-  .page-title,.stat-num,.card-title,.mtitle,[style*="Playfair"]{font-family:'Playfair Display',serif !important;font-weight:700 !important;font-style:normal !important;}
+  body{font-family:'Hanken Grotesk',sans-serif !important;}
+  .page-title,.stat-num,.card-title,.mtitle,[style*="Playfair"]{font-family:'Fraunces',serif !important;font-weight:600 !important;font-style:italic !important;}
 </style>
 </head>
 <body>
