@@ -13,22 +13,23 @@
 :root{--red:#A82A2A;--red-light:#FBEDEC;--red-mid:#B5302E;--border:#ECE3D9;--bg:#FBF7F1;--white:#FFFFFF;--text:#2A1A17;--muted:#92837B;--grad:linear-gradient(135deg,#B5302E,#7E1E1F);--green-bg:#DFFAE8;--green:#1A6636;--yellow-bg:#FFF3CC;--yellow:#7A5500;--blue-bg:#E0EDFF;--blue:#1A3F7A;--orange-bg:#FDE8D8;--orange:#7A3000;--purple-bg:#EDE0FF;--purple:#4A1A7A;}
 body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 .app{display:flex;flex-direction:column;height:100vh;max-width:980px;margin:0 auto;background:var(--white);box-shadow:0 0 40px rgba(0,0,0,.06)}
-.topbar{background:var(--grad);padding:13px 16px 12px;display:flex;flex-direction:column;align-items:stretch;gap:0;flex-shrink:0;color:#fff;border-radius:0 0 24px 24px}
+/* 19/07 (Bianca): visual antigo → cabeçalho CLARO do padrão atual. Só CSS. */
+.topbar{background:var(--bg);padding:13px 16px 12px;display:flex;flex-direction:column;align-items:stretch;gap:0;flex-shrink:0;color:var(--text);border-bottom:1px solid var(--border)}
 .topbar>img{display:none}
 .ah-row{display:flex;align-items:center;gap:10px;margin-bottom:11px}
-.ah-menu{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.16);border:0;color:#fff;font-family:'Manrope',sans-serif;font-weight:600;font-size:.85rem;padding:8px 14px 8px 10px;border-radius:22px;cursor:pointer}
+.ah-menu{display:inline-flex;align-items:center;gap:5px;background:#fff;border:1px solid var(--border);color:var(--red);font-family:'Manrope',sans-serif;font-weight:700;font-size:.85rem;padding:8px 14px 8px 10px;border-radius:22px;cursor:pointer}
 .ah-menu i{font-size:1.1rem}
 .ah-acts{margin-left:auto;display:flex;gap:8px;align-items:center}
-.ah-ic{position:relative;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.16);border:0;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.2rem}
-.ah-badge{position:absolute;top:-3px;right:-3px;min-width:18px;height:18px;border-radius:9px;background:#fff;color:var(--red);font-size:.6rem;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 4px}
-.ah-title{font-family:'Fraunces',serif;font-weight:600;font-size:1.55rem;line-height:1.12;color:#fff}
-.ah-sub{color:rgba(255,255,255,.85);font-size:.82rem;margin-top:3px}
+.ah-ic{position:relative;width:40px;height:40px;border-radius:50%;background:#fff;border:1px solid var(--border);color:var(--red);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.2rem}
+.ah-badge{position:absolute;top:-3px;right:-3px;min-width:18px;height:18px;border-radius:9px;background:var(--red);color:#fff;font-size:.6rem;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 4px}
+.ah-title{font-family:'Fraunces',serif;font-weight:600;font-size:1.55rem;line-height:1.12;color:var(--red)}
+.ah-sub{color:var(--muted);font-size:.82rem;margin-top:3px}
 .topbar img{background:#fff;padding:3px 7px;border-radius:8px}
 .topbar-nav{display:flex;gap:6px;margin-top:11px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px}
-.tnav{flex:0 0 auto;padding:8px 13px;border-radius:11px;font-size:.78rem;cursor:pointer;border:none;background:rgba(255,255,255,.16);color:#fff;font-family:'Manrope',sans-serif;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;font-weight:600}
-.tnav.active{background:#fff;color:var(--red)}
+.tnav{flex:0 0 auto;padding:8px 13px;border-radius:22px;font-size:.78rem;cursor:pointer;border:1px solid var(--border);background:#fff;color:#5A463E;font-family:'Manrope',sans-serif;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;font-weight:700}
+.tnav.active{background:var(--red);border-color:var(--red);color:#fff}
 .tnav i{font-size:15px}
-.pill-bar{padding:12px 20px;display:flex;gap:8px;flex-wrap:wrap;background:var(--white);border-bottom:1px solid var(--border);flex-shrink:0}
+.pill-bar{padding:12px 20px;display:flex;gap:8px;flex-wrap:wrap;background:var(--bg);border-bottom:1px solid var(--border);flex-shrink:0}
 .pill{padding:5px 14px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1.5px solid var(--border);background:transparent;color:var(--muted);transition:all .15s;white-space:nowrap;font-family:'Manrope',sans-serif}
 .pill.active{background:var(--red);border-color:var(--red);color:#fff}
 .pill:hover:not(.active){border-color:var(--red);color:var(--red)}
@@ -57,7 +58,7 @@ body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);min
 .b-problema{background:#FFF0CC;color:#7A4F00}
 .btn{padding:7px 14px;border-radius:8px;border:1.5px solid var(--border);background:var(--white);color:var(--text);font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .15s;font-family:'Manrope',sans-serif;font-weight:500}
 .btn:hover{background:var(--bg)}
-.btn-p{background:var(--grad);border-color:var(--red);color:#fff}
+.btn-p{background:var(--red);border-color:var(--red);color:#fff}
 .btn-p:hover{background:var(--red-mid)}
 .btn-sm{padding:5px 11px;font-size:12px}
 .btn-icon{padding:5px;min-width:28px;justify-content:center;border-radius:7px}
